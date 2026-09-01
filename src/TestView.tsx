@@ -8,19 +8,24 @@ import {
   missedIds,
   recordAttempt,
   MASTERY_STREAK,
+  type Attempt,
   type History,
   type QuestionOutcome,
 } from "@/lib/history"
 import {
+  domains,
   domainsForQuestion,
   projectedScaledScore,
   scoreByDomain,
   SCALED_PASS,
 } from "@/lib/domains"
+import { attemptView, buildReadiness } from "@/lib/readiness"
+import ReadinessPanel from "@/components/ReadinessPanel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -30,6 +35,21 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
+import {
+  ArrowRight,
+  Check,
+  ChevronRight,
+  Crosshair,
+  GraduationCap,
+  History as HistoryIcon,
+  Library,
+  RotateCcw,
+  Shuffle,
+  Target,
+  Trash2,
+  Zap,
+  type LucideIcon,
+} from "lucide-react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,13 +144,32 @@ function examTest(): ActiveTest {
   }
 }
 
-function mistakesTest(ids: string[]): ActiveTest {
+function mistakesTest(ids: string[], label = "Mistakes drill"): ActiveTest {
   const set = new Set(ids)
   const picked = shuffle(questions.filter((q) => set.has(q.id))).map(toTestQuestion)
   return {
-    label: "Mistakes drill",
+    label,
     questions: picked,
     durationSec: null,
+    drawnScenarios: null,
+  }
+}
+
+/**
+ * Every bank question attributed to one domain — the "practise my weakest area"
+ * path off the readiness panel. Attribution goes through domainsForQuestion, so
+ * an untagged question is drawn for any domain its scenario spans.
+ */
+function domainTest(domainId: string, timed: boolean): ActiveTest {
+  const domain = domains.find((d) => d.id === domainId)
+  const pool = shuffle(
+    questions.filter((q) => domainsForQuestion(q).some((d) => d.id === domainId))
+  )
+  const picked = pool.slice(0, 20).map(toTestQuestion)
+  return {
+    label: `${domain?.label ?? "Domain"} drill`,
+    questions: picked,
+    durationSec: timed ? picked.length * SECONDS_PER_QUESTION : null,
     drawnScenarios: null,
   }
 }
@@ -304,222 +343,204 @@ function Navigator({
 
 // ─── Intro screen ─────────────────────────────────────────────────────────────
 
-function IntroScreen({
-  history,
-  onStart,
+/**
+ * The exam format, as scannable rows instead of the paragraph this used to be.
+ * Every claim here is the same one the prose made; only the shape changed.
+ */
+const FORMAT_FACTS: { label: string; value: string }[] = [
+  {
+    label: "Draw",
+    value: `${EXAM_SCENARIO_COUNT} of ${scenarios.length} scenarios × ${EXAM_PER_SCENARIO} questions`,
+  },
+  { label: "Time", value: `${EXAM_MINUTES} minutes` },
+  { label: "Answers", value: "single-answer only, as on the real exam" },
+  { label: "Pass bar", value: `scaled ${SCALED_PASS}/1000 ≈ 75% raw here` },
+]
+
+/** A start option that is not the exam: a whole tile is the button, for reach. */
+function StartTile({
+  icon: Icon,
+  title,
+  meta,
+  hint,
+  disabled,
+  onClick,
+}: {
+  icon: LucideIcon
+  title: string
+  meta: string
+  hint?: string
+  disabled?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="flex flex-col gap-1 rounded-xl bg-card p-3 text-left ring-1 ring-foreground/10 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-60"
+    >
+      <span className="flex items-center gap-2 text-sm font-medium">
+        <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        {title}
+      </span>
+      <span className="text-xs text-muted-foreground">{meta}</span>
+      {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+    </button>
+  )
+}
+
+/**
+ * First-run primer. Nothing has been recorded yet, so instead of a scorecard
+ * full of dashes this slot tells a newcomer what to do first — and a returning
+ * user never sees it (ReadinessPanel takes over, in the second column).
+ */
+function FirstRunPrimer({ onQuickQuiz }: { onQuickQuiz: () => void }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <GraduationCap className="size-4 text-muted-foreground" aria-hidden />
+          Start here
+        </CardTitle>
+        <CardDescription>
+          Nothing recorded yet. Submit one test and this slot becomes your
+          readiness scorecard: projected scaled score, trend across attempts,
+          bank coverage, and your weakest domain.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <ol className="flex flex-col gap-2 text-sm">
+          {[
+            "Start with a quick quiz to find your level — 15 questions, no ceremony.",
+            "Anything you miss is collected automatically into a mistakes drill.",
+            "Sit the full exam simulation once you are clearing 75% on quizzes.",
+          ].map((step, i) => (
+            <li key={step} className="flex gap-2.5">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium tabular-nums">
+                {i + 1}
+              </span>
+              <span className="text-muted-foreground">{step}</span>
+            </li>
+          ))}
+        </ol>
+        <Separator />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="secondary" onClick={onQuickQuiz}>
+            Take the 15-question quiz
+            <ArrowRight aria-hidden />
+          </Button>
+          <p className="text-[11px] text-muted-foreground">
+            Scores stay in this browser — nothing leaves your machine.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/**
+ * Attempt history. Each row expands into the domains that attempt covered and a
+ * one-click re-drill of exactly the questions it got wrong, so a past score is
+ * something you can act on rather than a number to read.
+ */
+function AttemptHistory({
+  attempts,
+  onDrill,
   onClearHistory,
 }: {
-  history: History
-  onStart: (t: ActiveTest) => void
+  attempts: Attempt[]
+  onDrill: (ids: string[]) => void
   onClearHistory: () => void
 }) {
-  const [picked, setPicked] = useState<string[]>([])
-  const [timed, setTimed] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
 
-  const missed = useMemo(() => missedIds(history), [history])
-  const targetedPool = useMemo(
-    () => questions.filter((q) => picked.includes(q.scenarioId)).length,
-    [picked]
+  const recent = useMemo(() => [...attempts].reverse().slice(0, 10), [attempts])
+  const views = useMemo(
+    () => new Map(recent.map((a) => [a.id, attemptView(a)])),
+    [recent]
   )
-  const recent = useMemo(() => [...history.attempts].reverse().slice(0, 10), [
-    history.attempts,
-  ])
-
-  const toggleScenario = (id: string) =>
-    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
-
-  const startTargeted = (count: number | "all") => {
-    if (!picked.length) return
-    onStart(targetedTest(picked, count, timed))
-  }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>CCAR-F Mock Test</CardTitle>
-          <CardDescription>
-            A bank of {questions.length} questions covering all six exam
-            scenarios. Questions and options are shuffled each attempt. The
-            exam simulation mirrors the real format (single-answer only, 4
-            random scenarios); a few multi-select drill items appear in the
-            other modes as extra practice. The real exam passing bar is a
-            scaled 720/1000 — aim for 75%+ here.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <Button onClick={() => onStart(examTest())}>
-            🎯 Exam simulation — 4 random scenarios × {EXAM_PER_SCENARIO} questions ·{" "}
-            {EXAM_MINUTES} min
-          </Button>
-          <Button variant="secondary" onClick={() => onStart(randomTest("Quick quiz", 15))}>
-            ⚡ Quick quiz — 15 questions · 30 min
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => onStart(randomTest("Full bank", questions.length))}
-          >
-            🏋️ Full bank — {questions.length} questions
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Review my mistakes</CardTitle>
-          <CardDescription>
-            Questions you got wrong or skipped stay here until you answer them
-            correctly {MASTERY_STREAK} times.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            variant="secondary"
-            className="w-full"
-            disabled={missed.length === 0}
-            onClick={() => onStart(mistakesTest(missed))}
-          >
-            🔁 Review my mistakes — {missed.length} question
-            {missed.length === 1 ? "" : "s"}
-          </Button>
-          {missed.length === 0 && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Nothing to review yet — take a test, and anything you miss lands
-              here automatically.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Targeted practice</CardTitle>
-          <CardDescription>
-            Pick one or more scenarios, then choose how many questions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {scenarios.map((s) => {
-              const on = picked.includes(s.id)
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <HistoryIcon className="size-4 text-muted-foreground" aria-hidden />
+          Attempt history
+        </CardTitle>
+        {recent.length > 0 && (
+          <CardAction>
+            {confirmClear ? (
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    onClearHistory()
+                    setConfirmClear(false)
+                  }}
+                >
+                  Erase everything
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setConfirmClear(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setConfirmClear(true)}
+              >
+                <Trash2 aria-hidden />
+                Clear
+              </Button>
+            )}
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent>
+        {recent.length === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            No attempts yet. Every test you submit is logged here with the
+            domains it covered.
+          </p>
+        ) : (
+          <ul className="flex flex-col divide-y">
+            {recent.map((a, i) => {
+              const prev = recent[i + 1]
+              const delta = prev ? a.percent - prev.percent : null
+              const view = views.get(a.id)
+              const open = openId === a.id
               return (
-                <button
-                  key={s.id}
-                  onClick={() => toggleScenario(s.id)}
-                  aria-pressed={on}
-                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    on
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card hover:bg-accent"
-                  }`}
-                >
-                  {s.label} · {s.count}
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground">Start:</span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!picked.length}
-              onClick={() => startTargeted(10)}
-            >
-              10
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!picked.length || targetedPool < 20}
-              onClick={() => startTargeted(20)}
-            >
-              20
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!picked.length}
-              onClick={() => startTargeted("all")}
-            >
-              All {picked.length ? `(${targetedPool})` : ""}
-            </Button>
-            <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-              <Checkbox
-                checked={timed}
-                onCheckedChange={(v) => setTimed(v === true)}
-              />
-              Timed at exam pace
-            </label>
-          </div>
-          {!picked.length && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Select at least one scenario.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="text-base">Attempt history</CardTitle>
-            {recent.length > 0 &&
-              (confirmClear ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => {
-                      onClearHistory()
-                      setConfirmClear(false)
-                    }}
+                <li key={a.id}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(open ? null : a.id)}
+                    aria-expanded={open}
+                    aria-controls={`attempt-${a.id}`}
+                    className="flex w-full items-center gap-2 rounded-md py-2 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    Erase everything
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setConfirmClear(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setConfirmClear(true)}
-                  className="text-xs text-muted-foreground hover:text-destructive hover:underline"
-                >
-                  Clear history
-                </button>
-              ))}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {recent.length === 0 ? (
-            <p className="text-xs text-muted-foreground">
-              No attempts recorded yet. Scores are stored in this browser only.
-            </p>
-          ) : (
-            <ul className="flex flex-col divide-y">
-              {recent.map((a, i) => {
-                const prev = recent[i + 1]
-                const delta = prev ? a.percent - prev.percent : null
-                return (
-                  <li
-                    key={a.id}
-                    className="flex items-center gap-2 py-1.5 text-sm"
-                  >
-                    <span className="w-28 shrink-0 text-xs text-muted-foreground">
-                      {formatAttemptDate(a.date)}
+                    <ChevronRight
+                      className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
+                        open ? "rotate-90" : ""
+                      }`}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-medium">
+                        {a.mode}
+                      </span>
+                      <span className="block text-[11px] text-muted-foreground">
+                        {formatAttemptDate(a.date)} · {a.score}/{a.total}
+                      </span>
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-xs">
-                      {a.mode}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {a.score}/{a.total}
-                    </span>
+                    {/* Percent carries the tier as colour AND as its own text. */}
                     <Badge
                       variant={
                         a.percent >= 75
@@ -532,31 +553,308 @@ function IntroScreen({
                       {a.percent}%
                     </Badge>
                     <span
-                      className={`w-8 shrink-0 text-xs ${
+                      className={`w-11 shrink-0 text-right text-[11px] tabular-nums ${
                         delta === null
                           ? "text-muted-foreground"
                           : delta > 0
-                            ? "text-green-600 dark:text-green-400"
+                            ? "text-emerald-600 dark:text-emerald-400"
                             : delta < 0
-                              ? "text-red-600 dark:text-red-400"
+                              ? "text-rose-600 dark:text-rose-400"
                               : "text-muted-foreground"
                       }`}
                     >
                       {delta === null
                         ? "–"
                         : delta > 0
-                          ? `▲${delta}`
+                          ? `▲ ${delta}`
                           : delta < 0
-                            ? `▼${Math.abs(delta)}`
+                            ? `▼ ${Math.abs(delta)}`
                             : "="}
                     </span>
-                  </li>
-                )
-              })}
-            </ul>
+                  </button>
+                  {open && view && (
+                    <div
+                      id={`attempt-${a.id}`}
+                      className="flex flex-col gap-2 pb-3 pl-5 pr-1"
+                    >
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] text-muted-foreground">
+                          Domains covered:
+                        </span>
+                        {view.domains.length ? (
+                          view.domains.map((d) => (
+                            <Badge key={d.id} variant="outline" title={d.name}>
+                              {d.label}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground">
+                            unknown
+                          </span>
+                        )}
+                        {view.scaled !== null && (
+                          <span className="text-[11px] text-muted-foreground">
+                            · projected ≈ {view.scaled}
+                          </span>
+                        )}
+                      </div>
+                      {view.missedIds.length > 0 ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-fit"
+                          onClick={() => onDrill(view.missedIds)}
+                        >
+                          <RotateCcw aria-hidden />
+                          Re-drill the {view.missedIds.length} missed here
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">
+                          Nothing missed in this attempt.
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function IntroScreen({
+  history,
+  onStart,
+  onClearHistory,
+}: {
+  history: History
+  onStart: (t: ActiveTest) => void
+  onClearHistory: () => void
+}) {
+  const [picked, setPicked] = useState<string[]>([])
+  const [timed, setTimed] = useState(false)
+
+  const missed = useMemo(() => missedIds(history), [history])
+  const targetedPool = useMemo(
+    () => questions.filter((q) => picked.includes(q.scenarioId)).length,
+    [picked]
+  )
+  const readiness = useMemo(() => buildReadiness(history), [history])
+  const returning = readiness.attemptCount > 0
+
+  const toggleScenario = (id: string) =>
+    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
+
+  const startTargeted = (count: number | "all") => {
+    if (!picked.length) return
+    onStart(targetedTest(picked, count, timed))
+  }
+
+  return (
+    <div
+      className={`mx-auto w-full px-4 py-6 ${
+        returning ? "max-w-7xl" : "max-w-3xl"
+      }`}
+    >
+      {/* ── Page head ── */}
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div>
+          <h2 className="font-heading text-xl font-semibold">CCAR-F mock test</h2>
+          <p className="text-sm text-muted-foreground">
+            {questions.length} questions across all {scenarios.length} exam
+            scenarios.
+          </p>
+        </div>
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Shuffle className="size-3.5" aria-hidden />
+          Reshuffled every attempt · progress saved in this browser only
+        </p>
+      </div>
+
+      {/* Two columns only pay for themselves once there is a scorecard to put
+          in the second one; a first-timer reads a single narrow column.
+          Explicit lg placement (rather than plain flow) lets the scorecard span
+          both rows on the right while the start options and attempt history
+          stack on the left, so neither column bottoms out early. */}
+      <div
+        className={`grid gap-4 ${
+          returning
+            ? "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-start"
+            : ""
+        }`}
+      >
+        {/* ── Start a test ── */}
+        <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-1">
+          {/* The exam simulation is the point of the app, so it gets the only
+              hero treatment on the screen: primary ring, big type, big button. */}
+          <Card className="ring-2 ring-primary/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Target className="size-5 text-primary" aria-hidden />
+                Exam simulation
+              </CardTitle>
+              <CardDescription>
+                The real thing, end to end: a random {EXAM_SCENARIO_COUNT}
+                -scenario draw under the clock.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {FORMAT_FACTS.map((f) => (
+                  <div key={f.label}>
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {f.label}
+                    </dt>
+                    <dd className="text-sm leading-snug">{f.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Button
+                className="h-11 w-full text-base"
+                onClick={() => onStart(examTest())}
+              >
+                Start the {EXAM_MINUTES}-minute exam
+                <ArrowRight aria-hidden />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* ── Shorter paths ── */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StartTile
+              icon={Zap}
+              title="Quick quiz"
+              meta="15 questions · 30 min"
+              hint="Mixed scenarios"
+              onClick={() => onStart(randomTest("Quick quiz", 15))}
+            />
+            <StartTile
+              icon={Library}
+              title="Full bank"
+              meta={`${questions.length} questions`}
+              hint="Every question, timed at pace"
+              onClick={() =>
+                onStart(randomTest("Full bank", questions.length))
+              }
+            />
+            <StartTile
+              icon={RotateCcw}
+              title="My mistakes"
+              meta={`${missed.length} question${missed.length === 1 ? "" : "s"}`}
+              hint={
+                missed.length
+                  ? `Cleared after ${MASTERY_STREAK} correct in a row`
+                  : "Nothing missed yet"
+              }
+              disabled={missed.length === 0}
+              onClick={() => onStart(mistakesTest(missed))}
+            />
+          </div>
+
+          {!returning && (
+            <FirstRunPrimer
+              onQuickQuiz={() => onStart(randomTest("Quick quiz", 15))}
+            />
           )}
-        </CardContent>
-      </Card>
+
+          {/* ── Targeted practice ── */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crosshair className="size-4 text-muted-foreground" aria-hidden />
+                Targeted practice
+              </CardTitle>
+              <CardDescription>
+                Pick the scenarios you want, then how many questions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-3 flex flex-wrap gap-2">
+                {scenarios.map((s) => {
+                  const on = picked.includes(s.id)
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => toggleScenario(s.id)}
+                      aria-pressed={on}
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring ${
+                        on
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card hover:bg-accent"
+                      }`}
+                    >
+                      {on && <Check className="size-3" aria-hidden />}
+                      {s.label} · {s.count}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground">
+                  {picked.length
+                    ? `${targetedPool} in pool · start`
+                    : "Select at least one scenario"}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!picked.length}
+                  onClick={() => startTargeted(10)}
+                >
+                  10
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!picked.length || targetedPool < 20}
+                  onClick={() => startTargeted(20)}
+                >
+                  20
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!picked.length}
+                  onClick={() => startTargeted("all")}
+                >
+                  All {picked.length ? `(${targetedPool})` : ""}
+                </Button>
+                <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                  <Checkbox
+                    checked={timed}
+                    onCheckedChange={(v) => setTimed(v === true)}
+                  />
+                  Timed at exam pace
+                </label>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── Where you stand ── */}
+        {returning && (
+          <>
+            <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+              <ReadinessPanel
+                readiness={readiness}
+                onDrillMistakes={() => onStart(mistakesTest(missed))}
+                onPracticeWeakest={(id) => onStart(domainTest(id, timed))}
+              />
+            </div>
+            <div className="lg:col-start-1 lg:row-start-2">
+              <AttemptHistory
+                attempts={history.attempts}
+                onDrill={(ids) => onStart(mistakesTest(ids, "Attempt re-drill"))}
+                onClearHistory={onClearHistory}
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
