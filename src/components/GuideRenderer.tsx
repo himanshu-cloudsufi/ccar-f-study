@@ -89,6 +89,58 @@ function Items({ items, ordered }: { items: ListItem[]; ordered: boolean }) {
   );
 }
 
+// ─── Clause splitting ─────────────────────────────────────────────────────────
+
+/**
+ * Splits a run of spans at top-level semicolons so a definition's clauses each
+ * get their own line. Semicolons nested in parentheses/brackets, or inside a
+ * code span, are left alone.
+ */
+function splitClauses(spans: Span[]): Span[][] {
+  const out: Span[][] = [];
+  let current: Span[] = [];
+
+  const push = () => {
+    // Drop the leading whitespace a split leaves behind, then the whole clause
+    // if nothing but whitespace survived.
+    while (current.length && current[0].t === "text") {
+      const v = current[0].v.replace(/^\s+/, "");
+      if (v) {
+        current[0] = { t: "text", v };
+        break;
+      }
+      current.shift();
+    }
+    if (current.length) out.push(current);
+    current = [];
+  };
+
+  for (const span of spans) {
+    if (span.t !== "text") {
+      current.push(span);
+      continue;
+    }
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < span.v.length; i++) {
+      const ch = span.v[i];
+      if (ch === "(" || ch === "[") depth++;
+      else if (ch === ")" || ch === "]") depth = Math.max(0, depth - 1);
+      else if (ch === ";" && depth === 0) {
+        const v = span.v.slice(start, i);
+        if (v) current.push({ t: "text", v });
+        push();
+        start = i + 1;
+      }
+    }
+    const rest = span.v.slice(start);
+    if (rest) current.push({ t: "text", v: rest });
+  }
+  push();
+
+  return out;
+}
+
 // ─── Quiz ─────────────────────────────────────────────────────────────────────
 
 const LETTERS = "ABCDEFGH";
@@ -214,20 +266,34 @@ function BlockView({ block }: { block: Block }) {
         </p>
       );
 
-    case "definition":
+    case "definition": {
+      const clauses = splitClauses(block.spans);
       return (
         <div className="rounded-md border-l-2 border-primary/40 bg-muted/40 px-3 py-2">
           <span className="text-sm font-semibold text-foreground">
             <Spans spans={block.term} />
           </span>
-          {block.spans.length > 0 && (
+          {clauses.length === 1 && (
             <span className="text-sm leading-relaxed">
               {" — "}
-              <Spans spans={block.spans} />
+              <Spans spans={clauses[0]} />
             </span>
+          )}
+          {clauses.length > 1 && (
+            <ul className="mt-1.5 flex flex-col gap-1">
+              {clauses.map((clause, i) => (
+                <li key={i} className="flex gap-2 text-sm leading-relaxed">
+                  <span className="mt-[0.55rem] inline-block size-1.5 shrink-0 rounded-full bg-muted-foreground/50" />
+                  <span className="min-w-0 flex-1">
+                    <Spans spans={clause} />
+                  </span>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       );
+    }
 
     case "callout": {
       const principle = block.variant === "principle";
