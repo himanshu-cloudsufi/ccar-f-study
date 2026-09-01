@@ -4,9 +4,6 @@ import remarkGfm from "remark-gfm"
 import { guides } from "@/data/guides"
 import TestView from "@/TestView"
 import CardsView from "@/CardsView"
-import { SignInScreen, useSession } from "@/AuthGate"
-import { signOut } from "@/lib/leaderboard"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -69,9 +66,6 @@ type Mode = "learn" | "test" | "cards"
 
 export default function App() {
   const [mode, setMode] = useState<Mode>("learn")
-  const session = useSession()
-  const signedIn = session !== "loading" && session !== null
-  const email = signedIn ? (session.user.email ?? "") : ""
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -88,47 +82,17 @@ export default function App() {
               </p>
             </div>
           </div>
-          {signedIn && (
-            <div className="flex min-w-0 items-center gap-3">
-              <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
-                <TabsList>
-                  <TabsTrigger value="learn">📖 Learn</TabsTrigger>
-                  <TabsTrigger value="test">✍️ Test</TabsTrigger>
-                  <TabsTrigger value="cards">🃏 Cards</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <div className="hidden items-center gap-2 md:flex">
-                <span
-                  className="max-w-[180px] truncate text-xs text-muted-foreground"
-                  title={email}
-                >
-                  {email}
-                </span>
-                <Button variant="outline" size="sm" onClick={() => signOut()}>
-                  Sign out
-                </Button>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="md:hidden"
-                title={email}
-                onClick={() => signOut()}
-              >
-                Sign out
-              </Button>
-            </div>
-          )}
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
+            <TabsList>
+              <TabsTrigger value="learn">📖 Learn</TabsTrigger>
+              <TabsTrigger value="test">✍️ Test</TabsTrigger>
+              <TabsTrigger value="cards">🃏 Cards</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </header>
 
-      {session === "loading" ? (
-        <div className="flex min-h-[80vh] items-center justify-center text-sm text-muted-foreground">
-          Checking sign-in…
-        </div>
-      ) : session === null ? (
-        <SignInScreen />
-      ) : mode === "learn" ? (
+      {mode === "learn" ? (
         <LearnView />
       ) : mode === "test" ? (
         <TestView />

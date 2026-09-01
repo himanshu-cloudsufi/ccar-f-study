@@ -1,6 +1,6 @@
 # CCAR-F Study Hub
 
-A local web app for preparing for the **Claude Certified Architect – Foundations (CCAR-F)** exam. It bundles eight study guides (a master overview, the official exam guide, and one deep-dive per exam scenario) with a 222-question practice bank and a test engine that mirrors the real exam format. Everything runs client-side: guides are compiled in from Markdown, your attempt history lives in `localStorage`, and the only network calls are the optional team leaderboard and its sign-in.
+A local web app for preparing for the **Claude Certified Architect – Foundations (CCAR-F)** exam. It bundles eight study guides (a master overview, the official exam guide, and one deep-dive per exam scenario) with a 222-question practice bank and a test engine that mirrors the real exam format. Everything runs client-side: guides are compiled in from Markdown, your attempt history lives in `localStorage`, and the app makes no network calls at all — no sign-in, no backend, no database.
 
 **The exam, for reference:** 60 single-answer questions, 120 minutes, 4 scenarios drawn at random from a bank of 6, scaled score 100–1,000 with **720 to pass** (≈75% raw), $125 USD, delivered by Pearson VUE (online proctored or test centre). You cannot predict which four scenarios you get, so all six matter.
 
@@ -13,7 +13,7 @@ npm run dev      # http://localhost:5173
 
 Other scripts: `npm run build` (typecheck + production build into `dist/`, deployable as plain static files on any host — GitHub Pages, S3, Netlify, `npx serve dist`), `npm run preview` (serve the built output), `npm run lint` (oxlint).
 
-Node 20+ and npm. No env vars, no backend to run. The Supabase project URL and publishable key are committed in `src/lib/leaderboard.ts`, so the leaderboard works out of the box — reading it needs nothing, posting to it needs a work-email sign-in (see below).
+Node 20+ and npm. No env vars, no backend, no accounts — open it and start studying.
 
 ## The surfaces
 
@@ -50,27 +50,6 @@ Every attempt folds into `localStorage` (last 30 attempts, key `ccarf-history`):
 - "Review my mistakes" drills exactly that pool, untimed, and the results screen offers a one-click drill of what you just missed.
 
 Attempt history is per-browser and never leaves your machine. Clearing it is a two-click confirm on the Test intro screen. If `localStorage` is unavailable (private windows, storage disabled), the app still works — history just doesn't persist.
-
-## Team leaderboard
-
-A shared board (Supabase) showing the **best exam-simulation attempt per person**. Only exam simulations are eligible — quick quizzes and targeted drills are not comparable. Submitting is **explicit opt-in**: after an exam sim you sign in with your work email, pick a display name, and press submit; nothing is sent otherwise. Your display name is remembered locally under `ccarf-name`.
-
-### Identity model
-
-Reading the board is anonymous — no sign-in, nothing to configure. **Posting a score requires signing in with a `@cloudsufi.com` address** via Supabase email magic link.
-
-Enforcement is server-side, not in the UI. Row-level security on the `leaderboard` table allows an insert only from an authenticated session where `auth.uid() = user_id` **and** the JWT's email ends in `@cloudsufi.com`; an anonymous insert gets an HTTP 401 no matter what the client sends. Every row carries a `user_id` foreign key to `auth.users`, filled server-side by an `auth.uid()` column default rather than by the browser — so a row cannot be attributed to someone else. Scores are tied to real accounts; spoofing is not a thing.
-
-The flow, on the exam-simulation results screen: enter your work email → Supabase sends a sign-in link → clicking it returns you to the app signed in (supabase-js persists the session in the browser, so this is once per device) → pick a display name, prefilled from your email → submit. A sign-out link sits next to it.
-
-Study data is unaffected: attempt history, mistakes pool, and flashcard stats still live only in `localStorage` and are never sent to the server. Auth gates the leaderboard and nothing else.
-
-**Two operational notes:**
-
-- The magic-link email comes from Supabase's built-in sender, which is **rate-limited on the free tier** to a few emails per hour. That is fine in steady state — each person signs in roughly once per device — but on onboarding day the team should not all request links within the same hour. If that becomes a problem, configure custom SMTP in the Supabase dashboard.
-- The deployed URL must be added to **Supabase → Authentication → URL Configuration** (Site URL and the redirect allowlist) or magic links will bounce back to the wrong origin. It is currently set to `http://localhost:5173`, so update it when the app moves off localhost.
-
-**Still open, if we want it:** swapping the magic link for "Sign in with Google" restricted to the Workspace domain — with an Internal consent screen there is no Google verification review and no user cap, and it removes the email round-trip entirely. Optionally, a `user_progress` table to sync attempt history across devices. Both drop into the existing `user_id`/RLS structure with no rework.
 
 ## Contributing questions
 
@@ -113,7 +92,6 @@ src/
   App.tsx                      shell, Learn/Test/Cards tabs, Markdown guide reader
   TestView.tsx                 test engine: draws, timer, navigator, scoring, review
   CardsView.tsx                flashcard drill: deck picker, queue, hit/miss stats
-  LeaderboardPanel.tsx         board, magic-link sign-in, opt-in submit card
   content/
     00-CCAR-F-Overview-and-Study-Plan.md
     01…06-<scenario>.md          six scenario deep-dives
@@ -125,11 +103,10 @@ src/
     flashcards.ts              flashcard deck
   lib/
     history.ts                 localStorage attempts + mistakes pool
-    leaderboard.ts             Supabase client, auth, fetch/post
     utils.ts                   cn()
   components/ui/               shadcn primitives
   index.css                    Tailwind v4 theme
 public/                        favicon, icons
 ```
 
-Stack: Vite 8, React 19, TypeScript, Tailwind v4, shadcn/ui (Radix), react-markdown, supabase-js. `@/` resolves to `src/`.
+Stack: Vite 8, React 19, TypeScript, Tailwind v4, shadcn/ui (Radix), react-markdown. `@/` resolves to `src/`.

@@ -24,7 +24,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
-import { LeaderboardBoard, SubmitScore } from "@/LeaderboardPanel"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -487,8 +486,6 @@ function IntroScreen({
           )}
         </CardContent>
       </Card>
-
-      <LeaderboardBoard />
     </div>
   )
 }
@@ -653,16 +650,6 @@ export default function TestView() {
             </div>
           </CardContent>
         </Card>
-
-        {test.label === "Exam simulation" && (
-          <div className="mb-6">
-            <SubmitScore
-              score={score}
-              total={items.length}
-              scenarios={test.drawnScenarios}
-            />
-          </div>
-        )}
 
         <h2 className="mb-4 text-lg font-semibold">Answer review</h2>
         <div className="flex flex-col gap-4">
