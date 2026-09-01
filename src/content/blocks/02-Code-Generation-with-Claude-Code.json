@@ -1,0 +1,1836 @@
+{
+  "id": "s2",
+  "title": "Scenario 2: Code Generation with Claude Code",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Context"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Your team uses "
+        },
+        {
+          "t": "strong",
+          "v": "Claude Code"
+        },
+        {
+          "t": "text",
+          "v": " for code generation, refactoring, debugging, and documentation. You must integrate it into the development workflow with custom slash commands, CLAUDE.md configurations, and know when to use plan mode vs direct execution."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Primary domains"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Claude Code Configuration & Workflows (D3) · Context Management & Reliability (D5)"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 1: CLAUDE.md Configuration Hierarchy (Task Statement 3.1)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The three levels (memorize the paths)"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Level"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Location"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Shared via git?"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use for"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "strong",
+              "v": "User"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "~/.claude/CLAUDE.md"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "❌ No — personal only"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Your own preferences across all projects"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Project"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "./CLAUDE.md"
+            },
+            {
+              "t": "text",
+              "v": " or "
+            },
+            {
+              "t": "code",
+              "v": "./.claude/CLAUDE.md"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "✅ Yes"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Team standards: build/test commands, coding conventions, architecture decisions"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Directory"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "subdir/CLAUDE.md"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "✅ Yes"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Conventions specific to one subtree (loaded on demand when Claude works in that directory)"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Classic exam diagnosis"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "\"A new team member clones the repo but Claude doesn't follow the team's conventions.\" → The conventions were put in someone's "
+        },
+        {
+          "t": "strong",
+          "v": "user-level"
+        },
+        {
+          "t": "text",
+          "v": " "
+        },
+        {
+          "t": "code",
+          "v": "~/.claude/CLAUDE.md"
+        },
+        {
+          "t": "text",
+          "v": ", which is never shared through version control. Move them to project level."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Keeping CLAUDE.md modular"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "@import"
+            },
+            {
+              "t": "strong",
+              "v": " syntax"
+            },
+            {
+              "t": "text",
+              "v": " references external files, so each package's CLAUDE.md can pull in only the standards files relevant to it (chosen by that package's maintainers)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": ".claude/rules/"
+            },
+            {
+              "t": "strong",
+              "v": " directory"
+            },
+            {
+              "t": "text",
+              "v": ": split a monolithic CLAUDE.md into focused topic files — "
+            },
+            {
+              "t": "code",
+              "v": "testing.md"
+            },
+            {
+              "t": "text",
+              "v": ", "
+            },
+            {
+              "t": "code",
+              "v": "api-conventions.md"
+            },
+            {
+              "t": "text",
+              "v": ", "
+            },
+            {
+              "t": "code",
+              "v": "deployment.md"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "/memory"
+            },
+            {
+              "t": "strong",
+              "v": " command"
+            },
+            {
+              "t": "text",
+              "v": ": shows which memory files are actually loaded — first diagnostic step when Claude behaves inconsistently across sessions or machines."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 2: Path-Specific Rules (Task Statement 3.3)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Rule files in "
+        },
+        {
+          "t": "code",
+          "v": ".claude/rules/"
+        },
+        {
+          "t": "text",
+          "v": " can carry "
+        },
+        {
+          "t": "strong",
+          "v": "YAML frontmatter with a "
+        },
+        {
+          "t": "code",
+          "v": "paths"
+        },
+        {
+          "t": "strong",
+          "v": " field of glob patterns"
+        },
+        {
+          "t": "text",
+          "v": ". The rule loads "
+        },
+        {
+          "t": "strong",
+          "v": "only when Claude is editing matching files"
+        },
+        {
+          "t": "text",
+          "v": ", cutting irrelevant context and token usage."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "markdown",
+      "code": "---\npaths: [\"**/*.test.tsx\", \"**/*.test.ts\"]\n---\n# Testing conventions\n- Use React Testing Library queries by role\n- One behavior per test; no snapshot tests\n"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Rules vs directory CLAUDE.md — the key comparison"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Directory-level CLAUDE.md files are "
+        },
+        {
+          "t": "strong",
+          "v": "directory-bound"
+        },
+        {
+          "t": "text",
+          "v": ". Test files like "
+        },
+        {
+          "t": "code",
+          "v": "Button.test.tsx"
+        },
+        {
+          "t": "text",
+          "v": " living "
+        },
+        {
+          "t": "em",
+          "v": "next to"
+        },
+        {
+          "t": "text",
+          "v": " the code they test are spread across the whole tree — a directory CLAUDE.md can't cover them all. A glob rule ("
+        },
+        {
+          "t": "code",
+          "v": "**/*.test.tsx"
+        },
+        {
+          "t": "text",
+          "v": ") applies "
+        },
+        {
+          "t": "strong",
+          "v": "by file type regardless of location"
+        },
+        {
+          "t": "text",
+          "v": ". This exact contrast is a sample-exam question."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Decision matrix:"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Conventions apply to..."
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "text",
+              "v": "Everything, always"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Project CLAUDE.md"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "One subtree"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Directory CLAUDE.md (or a rule with a directory glob like "
+            },
+            {
+              "t": "code",
+              "v": "terraform/**/*"
+            },
+            {
+              "t": "text",
+              "v": ")"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "A file "
+            },
+            {
+              "t": "em",
+              "v": "type"
+            },
+            {
+              "t": "text",
+              "v": " spread across the repo"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": ".claude/rules/"
+            },
+            {
+              "t": "text",
+              "v": " with glob frontmatter"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "A task performed on demand"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Skill / slash command"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 3: Custom Slash Commands and Skills (Task Statement 3.2)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Scoping"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Artifact"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Project scope (shared via git)"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "User scope (personal)"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "text",
+              "v": "Slash commands"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": ".claude/commands/"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "~/.claude/commands/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Skills"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": ".claude/skills/<name>/SKILL.md"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "~/.claude/skills/<name>/SKILL.md"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "A team-wide "
+        },
+        {
+          "t": "code",
+          "v": "/review"
+        },
+        {
+          "t": "text",
+          "v": " command belongs in "
+        },
+        {
+          "t": "code",
+          "v": ".claude/commands/"
+        },
+        {
+          "t": "text",
+          "v": " in the repo — every developer gets it on clone/pull. (Sample Q4: distractors were "
+        },
+        {
+          "t": "code",
+          "v": "~/.claude/commands/"
+        },
+        {
+          "t": "text",
+          "v": " = personal only; CLAUDE.md = instructions, not command definitions; "
+        },
+        {
+          "t": "code",
+          "v": ".claude/config.json"
+        },
+        {
+          "t": "text",
+          "v": " with a commands array = doesn't exist.)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "To customize a shared skill without affecting teammates, create a "
+        },
+        {
+          "t": "strong",
+          "v": "personal variant under "
+        },
+        {
+          "t": "code",
+          "v": "~/.claude/skills/"
+        },
+        {
+          "t": "strong",
+          "v": " with a different name"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "SKILL.md frontmatter options (memorize all three)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "context: fork"
+            },
+            {
+              "t": "text",
+              "v": " — runs the skill in an "
+            },
+            {
+              "t": "strong",
+              "v": "isolated sub-agent context"
+            },
+            {
+              "t": "text",
+              "v": " so its output doesn't pollute the main conversation. Use for skills producing "
+            },
+            {
+              "t": "strong",
+              "v": "verbose output"
+            },
+            {
+              "t": "text",
+              "v": " (codebase analysis) or "
+            },
+            {
+              "t": "strong",
+              "v": "exploratory context"
+            },
+            {
+              "t": "text",
+              "v": " (brainstorming alternatives)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "allowed-tools"
+            },
+            {
+              "t": "text",
+              "v": " — restricts which tools the skill may use while executing (e.g., limit to file writes to prevent destructive Bash actions)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "argument-hint"
+            },
+            {
+              "t": "text",
+              "v": " — prompts the developer for required parameters when they invoke the skill without arguments."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Skills vs CLAUDE.md"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Skills"
+            },
+            {
+              "t": "text",
+              "v": " = on-demand invocation, task-specific workflows."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "CLAUDE.md"
+            },
+            {
+              "t": "text",
+              "v": " = always-loaded, universal standards."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "If it must apply automatically/deterministically based on file paths, that's a "
+        },
+        {
+          "t": "strong",
+          "v": "rule"
+        },
+        {
+          "t": "text",
+          "v": ", not a skill (skills rely on invocation or Claude choosing to load them)."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 4: Plan Mode vs Direct Execution (Task Statement 3.4)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "When plan mode"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Large-scale changes (e.g., library migrations touching "
+            },
+            {
+              "t": "strong",
+              "v": "45+ files"
+            },
+            {
+              "t": "text",
+              "v": ")"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Multiple valid approaches"
+            },
+            {
+              "t": "text",
+              "v": " requiring a decision"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Architectural decisions"
+            },
+            {
+              "t": "text",
+              "v": " (monolith → microservices, service boundaries)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Multi-file modifications where late-discovered dependencies would cause costly rework"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Plan mode enables safe exploration + design "
+        },
+        {
+          "t": "strong",
+          "v": "before committing to changes"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "When direct execution"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Simple, well-scoped changes: single-file bug fix with a clear stack trace, adding one validation conditional."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Combining them"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Correct workflow for big migrations: "
+        },
+        {
+          "t": "strong",
+          "v": "plan mode for investigation → direct execution for the planned implementation"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The Explore subagent"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "For verbose discovery phases, use the "
+        },
+        {
+          "t": "strong",
+          "v": "Explore subagent"
+        },
+        {
+          "t": "text",
+          "v": " to isolate exploration output and return only "
+        },
+        {
+          "t": "strong",
+          "v": "summaries"
+        },
+        {
+          "t": "text",
+          "v": " — preserving the main conversation's context window during multi-phase tasks."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Wrong-answer patterns"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "\"start direct and switch to plan mode if it gets complex\" (complexity is already stated in the requirements); \"give exhaustive upfront instructions\" (assumes you already know the answer without exploring)."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 5: Iterative Refinement Techniques (Task Statement 3.5)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Concrete input/output examples"
+            },
+            {
+              "t": "text",
+              "v": " — the most effective way to communicate a transformation when prose descriptions get interpreted inconsistently. Provide "
+            },
+            {
+              "t": "strong",
+              "v": "2–3 examples"
+            },
+            {
+              "t": "text",
+              "v": ". (E.g., null handling in a migration script: give an input row with nulls + the exact expected output.)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Test-driven iteration"
+            },
+            {
+              "t": "text",
+              "v": " — write the test suite first (expected behavior, edge cases, performance), then iterate by sharing "
+            },
+            {
+              "t": "strong",
+              "v": "test failures"
+            },
+            {
+              "t": "text",
+              "v": " with Claude."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "The interview pattern"
+            },
+            {
+              "t": "text",
+              "v": " — have Claude "
+            },
+            {
+              "t": "strong",
+              "v": "ask you questions first"
+            },
+            {
+              "t": "text",
+              "v": " to surface considerations you hadn't anticipated (cache invalidation strategy, failure modes) before implementing in an unfamiliar domain."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Batching fixes"
+            },
+            {
+              "t": "text",
+              "v": " — issues that "
+            },
+            {
+              "t": "strong",
+              "v": "interact"
+            },
+            {
+              "t": "text",
+              "v": " → one single detailed message covering all of them; "
+            },
+            {
+              "t": "strong",
+              "v": "independent"
+            },
+            {
+              "t": "text",
+              "v": " issues → fix sequentially."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 6: Sessions and Context (Task Statements 1.7, 5.4)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "--resume <session-name>"
+            },
+            {
+              "t": "text",
+              "v": " — continue a specific named prior session across work sessions."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "fork_session"
+            },
+            {
+              "t": "text",
+              "v": " — branch independent explorations from a "
+            },
+            {
+              "t": "strong",
+              "v": "shared analysis baseline"
+            },
+            {
+              "t": "text",
+              "v": " (e.g., compare two refactoring approaches without redoing the codebase analysis)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Resume vs fresh:"
+            },
+            {
+              "t": "text",
+              "v": " resume when prior context is "
+            },
+            {
+              "t": "strong",
+              "v": "mostly still valid"
+            },
+            {
+              "t": "text",
+              "v": "; start a "
+            },
+            {
+              "t": "strong",
+              "v": "new session with a structured summary injected"
+            },
+            {
+              "t": "text",
+              "v": " when prior tool results are "
+            },
+            {
+              "t": "strong",
+              "v": "stale"
+            },
+            {
+              "t": "text",
+              "v": " (files changed a lot). Resuming with stale tool results is unreliable."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "If resuming after limited code changes, "
+            },
+            {
+              "t": "strong",
+              "v": "tell the agent exactly which files changed"
+            },
+            {
+              "t": "text",
+              "v": " so it re-analyzes those instead of re-exploring everything."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "/compact"
+            },
+            {
+              "t": "text",
+              "v": " — compresses context during extended sessions when verbose discovery output fills the window."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Scratchpad files"
+            },
+            {
+              "t": "text",
+              "v": " — have Claude persist key findings to a file and reference it later, counteracting context degradation (symptom: Claude starts citing \"typical patterns\" instead of the specific classes it discovered earlier)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 7: Practice Questions"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your team's coding standards live in your "
+        },
+        {
+          "t": "code",
+          "v": "~/.claude/CLAUDE.md"
+        },
+        {
+          "t": "text",
+          "v": " and work great for you. A new hire reports Claude ignores all the standards. Why?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "The new hire's Claude Code version is outdated"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "User-level CLAUDE.md is not distributed via version control; the standards must move to project-level CLAUDE.md"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "The standards file exceeds the token limit"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "New hires must run /init before standards apply"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "code",
+          "v": "~/.claude/CLAUDE.md"
+        },
+        {
+          "t": "text",
+          "v": " applies only to that user's machine. Team standards belong at project level so git distributes them."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "You want a codebase-analysis skill whose multi-thousand-line exploration output must not consume the main session's context. Which frontmatter option?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "code",
+            "v": "allowed-tools: [Read, Grep]"
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "context: fork"
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "argument-hint: \"path to analyze\""
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "paths: [\"src/**/*\"]"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "code",
+          "v": "context: fork"
+        },
+        {
+          "t": "text",
+          "v": " runs the skill in an isolated sub-agent context; only its result returns. A restricts tools, C prompts for args, D is rules frontmatter, not skills."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Terraform conventions should load only when editing infrastructure files, which all live under "
+        },
+        {
+          "t": "code",
+          "v": "terraform/"
+        },
+        {
+          "t": "text",
+          "v": ". Test conventions should load for "
+        },
+        {
+          "t": "code",
+          "v": "*.test.tsx"
+        },
+        {
+          "t": "text",
+          "v": " files scattered everywhere. Best setup?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Both in root CLAUDE.md with clear headers"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "A CLAUDE.md inside every directory that contains tests"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Two "
+          },
+          {
+            "t": "code",
+            "v": ".claude/rules/"
+          },
+          {
+            "t": "text",
+            "v": " files with "
+          },
+          {
+            "t": "code",
+            "v": "paths: [\"terraform/**/*\"]"
+          },
+          {
+            "t": "text",
+            "v": " and "
+          },
+          {
+            "t": "code",
+            "v": "paths: [\"**/*.test.tsx\"]"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Two skills that developers invoke before editing"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Glob-scoped rules load conditionally by path, handling both the single-subtree case and the scattered-file-type case. A always loads (wastes context, relies on inference); B can't track scattered tests maintainably; D isn't automatic."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "You're asked to add a null-check to one function; the failing stack trace points to the exact line. Separately, you're asked to migrate the ORM across ~50 files with two viable target libraries. Choose the modes."
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Plan mode for both"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Direct execution for both"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Direct execution for the null-check; plan mode for the migration"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Plan mode for the null-check; direct execution for the migration"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Well-scoped single-file fix → direct. Large-scale change + multiple valid approaches + architectural decision → plan mode first."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "After a week away, you resume a named session about the payments module, but a teammate merged a large refactor of that module in the meantime. Best approach?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "code",
+            "v": "--resume"
+          },
+          {
+            "t": "text",
+            "v": " the session and continue where you left off"
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "--resume"
+          },
+          {
+            "t": "text",
+            "v": " and ask Claude to ignore anything that looks outdated"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Start a fresh session, injecting a structured summary of prior conclusions, and let Claude re-explore current code"
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "fork_session"
+          },
+          {
+            "t": "text",
+            "v": " to branch the old analysis"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "The prior tool results are stale; resuming (A/B) reasons over outdated file contents, and forking (D) copies the same stale baseline. Fresh session + injected summary is the documented pattern. (If only 2–3 files had changed, resuming and "
+        },
+        {
+          "t": "em",
+          "v": "naming those files"
+        },
+        {
+          "t": "text",
+          "v": " for targeted re-analysis would be acceptable.)"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q6",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Claude keeps misinterpreting your prose description of a CSV transformation, producing inconsistent output each attempt. Most effective next step?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Rewrite the description with more precise technical language"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Provide 2–3 concrete input/output example pairs demonstrating the transformation"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Switch to a larger model"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Ask Claude to explain its interpretation before coding"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Concrete input/output examples are the stated most-effective technique when prose is interpreted inconsistently. (D — the interview pattern — is for surfacing unknown "
+        },
+        {
+          "t": "em",
+          "v": "design considerations"
+        },
+        {
+          "t": "text",
+          "v": ", not for pinning down a known transformation.)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Key Takeaways Card"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Hierarchy: user "
+            },
+            {
+              "t": "code",
+              "v": "~/.claude/CLAUDE.md"
+            },
+            {
+              "t": "text",
+              "v": " (personal) → project "
+            },
+            {
+              "t": "code",
+              "v": "./CLAUDE.md"
+            },
+            {
+              "t": "text",
+              "v": " or "
+            },
+            {
+              "t": "code",
+              "v": ".claude/CLAUDE.md"
+            },
+            {
+              "t": "text",
+              "v": " (shared) → directory (subtree)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Not shared with team? It's in user-level config."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Scattered file types → glob rules beat directory CLAUDE.md."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "context: fork"
+            },
+            {
+              "t": "text",
+              "v": " isolates verbose skills; "
+            },
+            {
+              "t": "code",
+              "v": "allowed-tools"
+            },
+            {
+              "t": "text",
+              "v": " restricts; "
+            },
+            {
+              "t": "code",
+              "v": "argument-hint"
+            },
+            {
+              "t": "text",
+              "v": " prompts."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Plan mode: big/architectural/multiple-approaches. Direct: small, clear scope. Plan→execute combo for migrations."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Prose fails → give 2–3 I/O examples. Unknown domain → interview pattern. Interacting bugs → one message."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Stale context → fresh session + summary; valid context → "
+            },
+            {
+              "t": "code",
+              "v": "--resume"
+            },
+            {
+              "t": "text",
+              "v": "; comparisons → "
+            },
+            {
+              "t": "code",
+              "v": "fork_session"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "/memory"
+            },
+            {
+              "t": "text",
+              "v": " to debug loading; "
+            },
+            {
+              "t": "code",
+              "v": "/compact"
+            },
+            {
+              "t": "text",
+              "v": " to shrink context."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Docs"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Memory/CLAUDE.md — "
+        },
+        {
+          "t": "link",
+          "v": "https://code.claude.com/docs/en/memory",
+          "href": "https://code.claude.com/docs/en/memory"
+        },
+        {
+          "t": "text",
+          "v": " · Claude Code overview — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/docs/claude-code/overview",
+          "href": "https://docs.claude.com/en/docs/claude-code/overview"
+        }
+      ]
+    }
+  ]
+}

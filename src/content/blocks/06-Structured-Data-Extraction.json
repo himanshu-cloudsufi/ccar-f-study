@@ -1,0 +1,1501 @@
+{
+  "id": "s6",
+  "title": "Scenario 6: Structured Data Extraction",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Context"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "You build a system that extracts information from "
+        },
+        {
+          "t": "strong",
+          "v": "unstructured documents"
+        },
+        {
+          "t": "text",
+          "v": ", validates output with "
+        },
+        {
+          "t": "strong",
+          "v": "JSON schemas"
+        },
+        {
+          "t": "text",
+          "v": ", maintains high accuracy, handles edge cases gracefully, and feeds downstream systems."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Primary domains"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Prompt Engineering & Structured Output (D4) · Context Management & Reliability (D5)"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 1: Structured Output via tool_use (Task Statement 4.3)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Why tool_use is the answer"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Defining an \"extraction tool\" whose "
+        },
+        {
+          "t": "strong",
+          "v": "input schema is your target JSON schema"
+        },
+        {
+          "t": "text",
+          "v": " and reading the structured data out of the "
+        },
+        {
+          "t": "code",
+          "v": "tool_use"
+        },
+        {
+          "t": "text",
+          "v": " block is "
+        },
+        {
+          "t": "strong",
+          "v": "the most reliable way to get guaranteed schema-compliant output"
+        },
+        {
+          "t": "text",
+          "v": ". It "
+        },
+        {
+          "t": "strong",
+          "v": "eliminates JSON syntax errors"
+        },
+        {
+          "t": "text",
+          "v": " (no unbalanced braces, no markdown fences, no trailing commas)."
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "python",
+      "code": "tools = [{\n  \"name\": \"record_invoice\",\n  \"description\": \"Record extracted invoice data\",\n  \"input_schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"invoice_number\": {\"type\": \"string\"},\n      \"total\": {\"type\": \"number\"},\n      \"due_date\": {\"type\": [\"string\", \"null\"]},          # nullable!\n      \"category\": {\"enum\": [\"utilities\", \"services\", \"goods\", \"unclear\", \"other\"]},\n      \"category_detail\": {\"type\": [\"string\", \"null\"]}     # pairs with \"other\"\n    },\n    \"required\": [\"invoice_number\", \"total\"]\n  }\n}]\nresp = client.messages.create(..., tools=tools, tool_choice={\"type\": \"any\"})\ndata = next(b.input for b in resp.content if b.type == \"tool_use\")"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Critical limitation"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Strict schemas eliminate "
+        },
+        {
+          "t": "strong",
+          "v": "syntax"
+        },
+        {
+          "t": "text",
+          "v": " errors but "
+        },
+        {
+          "t": "strong",
+          "v": "NOT semantic errors"
+        },
+        {
+          "t": "text",
+          "v": ": line items that don't sum to the stated total, values placed in the wrong fields, plausible-but-wrong extractions. Semantic quality still needs validation + prompting."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "tool_choice (memorize the three)"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Setting"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Behavior"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use when"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "code",
+              "v": "\"auto\""
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "May reply with plain text OR call a tool"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Conversational agents"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "code",
+              "v": "\"any\""
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "MUST call a tool, model picks which"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Multiple extraction schemas, unknown document type — guarantees structured output"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "code",
+              "v": "{\"type\": \"tool\", \"name\": \"extract_metadata\"}"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "MUST call that exact tool"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Force a specific extraction first (e.g., metadata before enrichment), then handle subsequent steps in follow-up turns"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Schema design to prevent hallucination"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Optional/nullable fields"
+            },
+            {
+              "t": "text",
+              "v": " for information that "
+            },
+            {
+              "t": "strong",
+              "v": "may not exist in the source"
+            },
+            {
+              "t": "text",
+              "v": ". If a field is "
+            },
+            {
+              "t": "code",
+              "v": "required"
+            },
+            {
+              "t": "text",
+              "v": " but absent from the document, the model tends to "
+            },
+            {
+              "t": "strong",
+              "v": "fabricate a value to satisfy the schema"
+            },
+            {
+              "t": "text",
+              "v": ". Nullable → it returns null instead."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Enums"
+            },
+            {
+              "t": "text",
+              "v": " with escape hatches: add "
+            },
+            {
+              "t": "code",
+              "v": "\"unclear\""
+            },
+            {
+              "t": "text",
+              "v": " for ambiguous cases and "
+            },
+            {
+              "t": "code",
+              "v": "\"other\""
+            },
+            {
+              "t": "strong",
+              "v": " + a detail string field"
+            },
+            {
+              "t": "text",
+              "v": " for extensible categories."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Include "
+            },
+            {
+              "t": "strong",
+              "v": "format normalization rules in the prompt"
+            },
+            {
+              "t": "text",
+              "v": " alongside the strict schema (e.g., \"convert all dates to ISO 8601; strip currency symbols\") to tame inconsistent source formatting."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 2: Validation, Retry, Feedback Loops (Task Statement 4.4)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Retry-with-error-feedback"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "On validation failure (Pydantic / JSON Schema), send a follow-up including:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "The "
+            },
+            {
+              "t": "strong",
+              "v": "original document"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "The "
+            },
+            {
+              "t": "strong",
+              "v": "failed extraction"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "The "
+            },
+            {
+              "t": "strong",
+              "v": "specific validation errors"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "The model self-corrects against explicit feedback."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "When retries work vs don't (heavily tested)"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Failure cause"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retry helps?"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "text",
+              "v": "Format mismatch (date format, number as string)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "✅ Yes"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Structural output error (wrong nesting, missing wrapper)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "✅ Yes"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Information absent from the source document"
+            },
+            {
+              "t": "text",
+              "v": " (e.g., exists only in an external doc not provided)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "❌ "
+            },
+            {
+              "t": "strong",
+              "v": "No — retries cannot conjure missing data."
+            },
+            {
+              "t": "text",
+              "v": " Route to null/human review instead"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Self-correction validation flows"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Extract "
+            },
+            {
+              "t": "code",
+              "v": "calculated_total"
+            },
+            {
+              "t": "text",
+              "v": " (sum of line items) alongside "
+            },
+            {
+              "t": "code",
+              "v": "stated_total"
+            },
+            {
+              "t": "text",
+              "v": " — a mismatch flags a discrepancy for review."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Add "
+            },
+            {
+              "t": "code",
+              "v": "conflict_detected"
+            },
+            {
+              "t": "text",
+              "v": " booleans when source data is internally inconsistent."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Add "
+            },
+            {
+              "t": "code",
+              "v": "detected_pattern"
+            },
+            {
+              "t": "text",
+              "v": " fields so dismissed/erroneous findings can be analyzed systematically."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Few-shot for structural variety (Task Statement 4.2 applied)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "When documents vary structurally (inline citations vs bibliographies; methodology sections vs embedded details; narrative vs tables; informal measurements), add "
+        },
+        {
+          "t": "strong",
+          "v": "few-shot examples demonstrating correct extraction from each variant"
+        },
+        {
+          "t": "text",
+          "v": ". This is also the fix for "
+        },
+        {
+          "t": "strong",
+          "v": "empty/null extractions of fields that ARE present"
+        },
+        {
+          "t": "text",
+          "v": " but formatted unusually — and it reduces hallucination on informal formats."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 3: Batch Processing Strategy (Task Statement 4.5)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Facts: "
+        },
+        {
+          "t": "strong",
+          "v": "50% cost savings · up to 24h processing · no latency SLA · "
+        },
+        {
+          "t": "code",
+          "v": "custom_id"
+        },
+        {
+          "t": "strong",
+          "v": " correlation · no multi-turn tool calling inside a batch request."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Pipeline design:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Refine the prompt on a sample set first"
+            },
+            {
+              "t": "text",
+              "v": " — maximizes first-pass success, minimizes costly resubmission cycles."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Submit the corpus with unique "
+            },
+            {
+              "t": "code",
+              "v": "custom_id"
+            },
+            {
+              "t": "text",
+              "v": "s."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Poll for completion; join results to inputs by "
+            },
+            {
+              "t": "code",
+              "v": "custom_id"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Resubmit only failures"
+            },
+            {
+              "t": "text",
+              "v": ", modified appropriately — e.g., "
+            },
+            {
+              "t": "strong",
+              "v": "chunk documents that exceeded context limits"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "SLA math:"
+            },
+            {
+              "t": "text",
+              "v": " guarantee turnaround of T hours with a 24h max processing window → submission interval ≤ T − 24 (guide example: 30-hour SLA → 4-hour submission windows)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Appropriateness: overnight reports, weekly audits, large back-fills = batch. Anything a user or pipeline blocks on = synchronous."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 4: Human Review Workflows & Confidence Calibration (Task Statement 5.5)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The aggregate-metrics trap"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "strong",
+          "v": "97% overall accuracy can mask terrible performance on specific document types or fields"
+        },
+        {
+          "t": "text",
+          "v": " (e.g., 99% on invoices, 70% on handwritten receipts). Before reducing human review, "
+        },
+        {
+          "t": "strong",
+          "v": "validate accuracy segmented by document type AND by field"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Calibrated confidence routing"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Have the model output "
+            },
+            {
+              "t": "strong",
+              "v": "field-level confidence scores"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Calibrate thresholds using a labeled validation set"
+            },
+            {
+              "t": "text",
+              "v": " — raw LLM confidence is not trustworthy until mapped against ground truth."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Route to human review: "
+            },
+            {
+              "t": "strong",
+              "v": "low-confidence extractions"
+            },
+            {
+              "t": "text",
+              "v": " and "
+            },
+            {
+              "t": "strong",
+              "v": "ambiguous/contradictory source documents"
+            },
+            {
+              "t": "text",
+              "v": " — prioritizing limited reviewer capacity where it matters."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Ongoing monitoring"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "strong",
+          "v": "Stratified random sampling of high-confidence extractions"
+        },
+        {
+          "t": "text",
+          "v": " for continuous error-rate measurement and "
+        },
+        {
+          "t": "strong",
+          "v": "novel error pattern detection"
+        },
+        {
+          "t": "text",
+          "v": ". High-confidence ≠ never wrong; without sampling, new failure modes go unnoticed."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 5: Context & Reliability for Extraction (Domain 5 touches)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Long documents:"
+            },
+            {
+              "t": "text",
+              "v": " lost-in-the-middle applies — fields buried mid-document are at higher risk; consider chunking or restructuring inputs."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Temporal fields:"
+            },
+            {
+              "t": "text",
+              "v": " capture publication/collection dates so downstream systems don't misread time differences as contradictions."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Conflicting values within a document:"
+            },
+            {
+              "t": "text",
+              "v": " extract both with annotation ("
+            },
+            {
+              "t": "code",
+              "v": "conflict_detected"
+            },
+            {
+              "t": "text",
+              "v": ") rather than silently choosing."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 6: Practice Questions"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your extraction pipeline intermittently fails on malformed JSON: markdown fences, trailing commas, unescaped quotes. Most reliable fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Post-process the text with regex cleanup before parsing"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Prompt: \"Respond ONLY with valid JSON, no markdown\""
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Define an extraction tool with your JSON schema as input_schema and read the tool_use block, with tool_choice forcing tool use"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retry parsing up to five times"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "tool_use with schemas eliminates syntax errors entirely — the model fills schema-validated parameters instead of free-writing JSON. A, B, D reduce but don't eliminate failures."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Invoices sometimes lack a PO number, but your schema marks "
+        },
+        {
+          "t": "code",
+          "v": "po_number"
+        },
+        {
+          "t": "text",
+          "v": " as required. The model fills in realistic-looking fake PO numbers. Fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Prompt: \"never make up PO numbers\""
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Make "
+          },
+          {
+            "t": "code",
+            "v": "po_number"
+          },
+          {
+            "t": "text",
+            "v": " nullable/optional so the model can return null when absent"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Validate PO numbers against the ERP after extraction"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Lower temperature to 0"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Required fields pressure the model to fabricate. Nullable schema design removes the pressure at the root. A is probabilistic; C catches but doesn't prevent; D doesn't change the schema constraint."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "A batch of 5,000 contracts returns 200 validation failures: 150 are \"date format invalid,\" 50 are \"counterparty_address missing\" where the address exists only in a separate exhibit document not included. Handling?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Retry all 200 with error feedback"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retry the 150 format failures with specific validation errors included; route the 50 missing-source cases to null/human handling — retries cannot recover absent information"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retry all 200 with a stronger prompt"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Mark all 200 as unextractable"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Retry-with-error-feedback fixes format/structural errors; it is ineffective when the information isn't in the provided source. Segment failures by cause."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "You have three extraction tools (invoice, receipt, contract) and don't know each document's type in advance. You need guaranteed structured output. tool_choice?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "code",
+            "v": "\"auto\""
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "\"any\""
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "{\"type\": \"tool\", \"name\": \"extract_invoice\"}"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Omit tool_choice"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "code",
+          "v": "\"any\""
+        },
+        {
+          "t": "text",
+          "v": " guarantees a tool call (structured output) while letting the model pick the schema matching the document type. "
+        },
+        {
+          "t": "code",
+          "v": "\"auto\""
+        },
+        {
+          "t": "text",
+          "v": " (A/D) may return prose; forcing one tool (C) is wrong for unknown types."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your dashboard shows 97% accuracy, so leadership wants human review dropped for all \"high-confidence\" extractions. What must you verify first, and how do you keep it safe over time?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Nothing — 97% exceeds the target"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Segment accuracy by document type and field to expose weak segments; then keep stratified random sampling of high-confidence extractions to measure error rates and catch novel patterns"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Raise the confidence threshold to 99%"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Ask the model whether it feels confident enough"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Aggregate metrics mask segment-level failures; stratified sampling of the automated stream is the ongoing safety net. Raw model confidence (C/D) is uncalibrated until validated against labeled data."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q6",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Extracted invoices pass schema validation, but the line items often don't sum to the stated total. What design catches this?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Stricter JSON schema types"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Extract "
+          },
+          {
+            "t": "code",
+            "v": "calculated_total"
+          },
+          {
+            "t": "text",
+            "v": " alongside "
+          },
+          {
+            "t": "code",
+            "v": "stated_total"
+          },
+          {
+            "t": "text",
+            "v": " and flag discrepancies (semantic validation), optionally with a "
+          },
+          {
+            "t": "code",
+            "v": "conflict_detected"
+          },
+          {
+            "t": "text",
+            "v": " boolean"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Increase max_tokens"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Switch to XML output"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "This is a "
+        },
+        {
+          "t": "em",
+          "v": "semantic"
+        },
+        {
+          "t": "text",
+          "v": " error; schema strictness (A) only governs syntax/structure. Cross-field validation with self-reported computed values flags inconsistency for review."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q7",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Extraction accuracy is fine on formal reports but the model returns null for measurements written informally (\"about two and a half meters\") even though they're present. Fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Mark measurement fields required to force extraction"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Add few-shot examples demonstrating correct extraction of informal/varied formats, plus normalization rules in the prompt"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Preprocess documents with regex to standardize measurements"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retry nulls automatically"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Few-shot examples on varied/informal structures are the documented fix for wrongly-null fields and hallucination on informal formats; normalization rules pair with the strict schema. A causes fabrication elsewhere; C is brittle; D retries without new guidance rarely helps."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Key Takeaways Card"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "tool_use + input_schema = guaranteed syntax; semantics still need validation (calculated vs stated totals, conflict_detected)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "tool_choice: auto = may talk; any = must call some tool; forced = must call THAT tool (then continue in follow-up turns)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Nullable fields prevent fabrication; enums get \"unclear\" and \"other\"+detail."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Retry with (document + failed output + specific errors); never retry absent-information failures."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Few-shot for structural variety and informal formats; normalization rules alongside strict schemas."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Batch: sample-refine first, custom_id everything, resubmit only failures (chunk oversized docs), interval ≤ SLA − 24h."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Segment accuracy by doc type & field; calibrate confidence on labeled sets; stratified-sample the high-confidence stream forever."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Docs"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Tool use — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+          "href": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+        },
+        {
+          "t": "text",
+          "v": " · Batches — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/api",
+          "href": "https://docs.claude.com/en/api"
+        },
+        {
+          "t": "text",
+          "v": " (Message Batches)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1642 @@
+{
+  "id": "s3",
+  "title": "Scenario 3: Multi-Agent Research System",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Context"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "A "
+        },
+        {
+          "t": "strong",
+          "v": "coordinator agent"
+        },
+        {
+          "t": "text",
+          "v": " (Claude Agent SDK) delegates to specialized subagents — web search, document analysis, synthesis, and report generation — to research topics and produce comprehensive, cited reports."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Primary domains"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Agentic Architecture & Orchestration (D1) · Tool Design & MCP Integration (D2) · Context Management & Reliability (D5)"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 1: Hub-and-Spoke Orchestration (Task Statement 1.2)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Architecture rules"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "The "
+            },
+            {
+              "t": "strong",
+              "v": "coordinator"
+            },
+            {
+              "t": "text",
+              "v": " owns: task decomposition, delegation, result aggregation, deciding "
+            },
+            {
+              "t": "em",
+              "v": "which"
+            },
+            {
+              "t": "text",
+              "v": " subagents to invoke, error handling, and information routing."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "All inter-subagent communication routes through the coordinator"
+            },
+            {
+              "t": "text",
+              "v": " (hub-and-spoke). Benefits: observability, consistent error handling, controlled information flow. Subagents never talk directly to each other."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Subagents run with "
+            },
+            {
+              "t": "strong",
+              "v": "isolated context"
+            },
+            {
+              "t": "text",
+              "v": " — they do NOT inherit the coordinator's conversation history automatically."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Dynamic invocation, not fixed pipelines"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "A good coordinator analyzes the query and "
+        },
+        {
+          "t": "strong",
+          "v": "selects only the needed subagents"
+        },
+        {
+          "t": "text",
+          "v": " rather than always running the full pipeline. Simple factual query → maybe just web search + synthesis; deep comparison → all four."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The narrow-decomposition failure mode (sample Q7)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "If the coordinator decomposes \"impact of AI on creative industries\" into only \"digital art / graphic design / photography,\" the report misses music, writing, and film — "
+        },
+        {
+          "t": "strong",
+          "v": "even though every subagent works perfectly"
+        },
+        {
+          "t": "text",
+          "v": ". Root cause: coordinator decomposition too narrow. Diagnostic habit: when coverage is incomplete but each agent succeeded, "
+        },
+        {
+          "t": "strong",
+          "v": "check what the coordinator assigned"
+        },
+        {
+          "t": "text",
+          "v": ", not the downstream agents."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Mitigations:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Partition research scope to "
+            },
+            {
+              "t": "strong",
+              "v": "minimize duplication"
+            },
+            {
+              "t": "text",
+              "v": " (distinct subtopics or source types per agent) "
+            },
+            {
+              "t": "em",
+              "v": "and"
+            },
+            {
+              "t": "text",
+              "v": " maximize coverage."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Iterative refinement loops"
+            },
+            {
+              "t": "text",
+              "v": ": coordinator evaluates synthesis output for gaps → re-delegates targeted queries to search/analysis → re-invokes synthesis until coverage is sufficient."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Coordinator prompts should specify "
+            },
+            {
+              "t": "strong",
+              "v": "research goals and quality criteria"
+            },
+            {
+              "t": "text",
+              "v": ", not rigid step-by-step procedures — this preserves subagent adaptability."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 2: Spawning Subagents and Passing Context (Task Statement 1.3)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Mechanics to memorize"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Subagents are spawned via the "
+            },
+            {
+              "t": "strong",
+              "v": "Task tool"
+            },
+            {
+              "t": "text",
+              "v": ". The coordinator's "
+            },
+            {
+              "t": "code",
+              "v": "allowedTools"
+            },
+            {
+              "t": "strong",
+              "v": " must include "
+            },
+            {
+              "t": "code",
+              "v": "\"Task\""
+            },
+            {
+              "t": "text",
+              "v": " or it cannot spawn anything."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "AgentDefinition"
+            },
+            {
+              "t": "text",
+              "v": " configures each subagent type: description, system prompt, tool restrictions."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Parallelism:"
+            },
+            {
+              "t": "text",
+              "v": " emit "
+            },
+            {
+              "t": "strong",
+              "v": "multiple Task tool calls in a single coordinator response"
+            },
+            {
+              "t": "text",
+              "v": " → subagents run in parallel. Emitting them across separate turns = sequential (slower)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "fork_session"
+            },
+            {
+              "t": "text",
+              "v": ": create independent branches from a shared analysis baseline to explore divergent approaches."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Explicit context passing (the #1 gotcha)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Subagents share "
+        },
+        {
+          "t": "strong",
+          "v": "no memory"
+        },
+        {
+          "t": "text",
+          "v": " between invocations and inherit "
+        },
+        {
+          "t": "strong",
+          "v": "nothing"
+        },
+        {
+          "t": "text",
+          "v": ". Everything the synthesis agent needs — web search results, document analysis outputs — must be "
+        },
+        {
+          "t": "strong",
+          "v": "included directly in its prompt"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Use "
+        },
+        {
+          "t": "strong",
+          "v": "structured formats separating content from metadata"
+        },
+        {
+          "t": "text",
+          "v": ":"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "json",
+      "code": "{\n  \"claim\": \"EU AI Act enforcement began August 2026\",\n  \"evidence_excerpt\": \"...\",\n  \"source_url\": \"https://...\",\n  \"document_name\": \"EU Commission press release\",\n  \"publication_date\": \"2026-08-01\",\n  \"relevance_score\": 0.92\n}"
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "This preserves "
+        },
+        {
+          "t": "strong",
+          "v": "attribution"
+        },
+        {
+          "t": "text",
+          "v": " through handoffs and lets downstream agents reason about recency and reliability."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 3: Tool Distribution Across Agents (Task Statement 2.3)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Principles"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Too many tools degrades selection."
+            },
+            {
+              "t": "text",
+              "v": " An agent with 18 tools instead of 4–5 makes unreliable choices — decision complexity scales with tool count."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Agents misuse out-of-specialization tools"
+            },
+            {
+              "t": "text",
+              "v": " (a synthesis agent with web search tools starts searching instead of synthesizing)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Scoped access:"
+            },
+            {
+              "t": "text",
+              "v": " each agent gets only role-relevant tools, plus narrowly "
+            },
+            {
+              "t": "strong",
+              "v": "scoped cross-role tools for high-frequency needs"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The verify_fact pattern (sample Q9)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Synthesis frequently needs to verify claims; routing every verification through coordinator → web-search agent → back adds 2–3 round trips (+40% latency). If "
+        },
+        {
+          "t": "strong",
+          "v": "85% are simple fact-checks"
+        },
+        {
+          "t": "text",
+          "v": ", give the synthesis agent a "
+        },
+        {
+          "t": "strong",
+          "v": "scoped "
+        },
+        {
+          "t": "code",
+          "v": "verify_fact"
+        },
+        {
+          "t": "strong",
+          "v": " tool"
+        },
+        {
+          "t": "text",
+          "v": " for those, keeping coordinator-routed delegation for the complex 15%. This is "
+        },
+        {
+          "t": "strong",
+          "v": "least privilege"
+        },
+        {
+          "t": "text",
+          "v": ": enough capability for the common case, without over-provisioning (giving it "
+        },
+        {
+          "t": "em",
+          "v": "all"
+        },
+        {
+          "t": "text",
+          "v": " search tools) or speculative caching."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Constrained alternatives"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Replace generic tools with constrained ones: "
+        },
+        {
+          "t": "code",
+          "v": "fetch_url"
+        },
+        {
+          "t": "text",
+          "v": " → "
+        },
+        {
+          "t": "code",
+          "v": "load_document"
+        },
+        {
+          "t": "text",
+          "v": " that validates document URLs. Split overly generic tools: "
+        },
+        {
+          "t": "code",
+          "v": "analyze_document"
+        },
+        {
+          "t": "text",
+          "v": " → "
+        },
+        {
+          "t": "code",
+          "v": "extract_data_points"
+        },
+        {
+          "t": "text",
+          "v": ", "
+        },
+        {
+          "t": "code",
+          "v": "summarize_content"
+        },
+        {
+          "t": "text",
+          "v": ", "
+        },
+        {
+          "t": "code",
+          "v": "verify_claim_against_source"
+        },
+        {
+          "t": "text",
+          "v": ". Rename to eliminate overlap: "
+        },
+        {
+          "t": "code",
+          "v": "analyze_content"
+        },
+        {
+          "t": "text",
+          "v": " → "
+        },
+        {
+          "t": "code",
+          "v": "extract_web_results"
+        },
+        {
+          "t": "text",
+          "v": " with a web-specific description."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "tool_choice options (also tested in Scenario 6)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "\"auto\""
+            },
+            {
+              "t": "text",
+              "v": " — model may answer in text OR call a tool"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "\"any\""
+            },
+            {
+              "t": "text",
+              "v": " — model MUST call some tool (its choice which)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "{\"type\": \"tool\", \"name\": \"...\"}"
+            },
+            {
+              "t": "text",
+              "v": " — model MUST call that specific tool"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 4: Error Propagation (Task Statements 2.2, 5.3)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The correct pattern (sample Q8)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "When a subagent fails (e.g., web search timeout), return "
+        },
+        {
+          "t": "strong",
+          "v": "structured error context"
+        },
+        {
+          "t": "text",
+          "v": " to the coordinator:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Failure type"
+            },
+            {
+              "t": "text",
+              "v": " (timeout, access denied, ...)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "What was attempted"
+            },
+            {
+              "t": "text",
+              "v": " (the query)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Partial results"
+            },
+            {
+              "t": "text",
+              "v": " gathered before failure"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Potential alternative approaches"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "This lets the coordinator decide intelligently: retry with a modified query, try an alternative source, or proceed with partials + annotate gaps."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Anti-patterns (all appear as distractors)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Generic status after silent internal retries (\"search unavailable\") — hides context from the coordinator"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Returning empty results "
+            },
+            {
+              "t": "strong",
+              "v": "marked as successful"
+            },
+            {
+              "t": "text",
+              "v": " — silently suppresses the error, corrupts the research"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Propagating the raw exception to a top-level handler that "
+            },
+            {
+              "t": "strong",
+              "v": "kills the whole workflow"
+            },
+            {
+              "t": "text",
+              "v": " — one failure shouldn't end everything"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Layered recovery"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Subagents handle "
+        },
+        {
+          "t": "strong",
+          "v": "local recovery for transient failures"
+        },
+        {
+          "t": "text",
+          "v": " themselves; they propagate only errors they "
+        },
+        {
+          "t": "strong",
+          "v": "cannot"
+        },
+        {
+          "t": "text",
+          "v": " resolve, together with partials and attempts. And always distinguish "
+        },
+        {
+          "t": "strong",
+          "v": "access failure"
+        },
+        {
+          "t": "text",
+          "v": " (couldn't search) from "
+        },
+        {
+          "t": "strong",
+          "v": "valid empty result"
+        },
+        {
+          "t": "text",
+          "v": " (searched fine, nothing matched)."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Coverage annotations"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Synthesis output should annotate which findings are "
+        },
+        {
+          "t": "strong",
+          "v": "well-supported"
+        },
+        {
+          "t": "text",
+          "v": " vs which topic areas have "
+        },
+        {
+          "t": "strong",
+          "v": "gaps due to unavailable sources"
+        },
+        {
+          "t": "text",
+          "v": " — the report is honest about its own blind spots."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 5: Context, Provenance, and Conflicts (Task Statements 5.1, 5.6)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Position effects and budgets"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Lost-in-the-middle:"
+            },
+            {
+              "t": "text",
+              "v": " in long aggregated inputs, middle-section findings get dropped. Put a key-findings summary "
+            },
+            {
+              "t": "strong",
+              "v": "at the beginning"
+            },
+            {
+              "t": "text",
+              "v": " and organize details under explicit section headers."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "When downstream agents have tight context budgets, modify "
+            },
+            {
+              "t": "strong",
+              "v": "upstream"
+            },
+            {
+              "t": "text",
+              "v": " agents to return "
+            },
+            {
+              "t": "strong",
+              "v": "structured data"
+            },
+            {
+              "t": "text",
+              "v": " (key facts, citations, relevance scores) instead of verbose prose and reasoning chains."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Require subagents to include "
+            },
+            {
+              "t": "strong",
+              "v": "metadata"
+            },
+            {
+              "t": "text",
+              "v": " (dates, source locations, methodological context) in structured outputs for accurate synthesis."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Provenance"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Source attribution is "
+            },
+            {
+              "t": "strong",
+              "v": "lost during summarization"
+            },
+            {
+              "t": "text",
+              "v": " unless claim–source mappings are explicitly preserved and merged at every step."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Conflicting statistics from credible sources:"
+            },
+            {
+              "t": "text",
+              "v": " never arbitrarily pick one. The document-analysis agent completes its work with "
+            },
+            {
+              "t": "strong",
+              "v": "both values included and explicitly annotated"
+            },
+            {
+              "t": "text",
+              "v": "; the "
+            },
+            {
+              "t": "strong",
+              "v": "coordinator"
+            },
+            {
+              "t": "text",
+              "v": " decides how to reconcile before synthesis. Final reports separate "
+            },
+            {
+              "t": "strong",
+              "v": "well-established"
+            },
+            {
+              "t": "text",
+              "v": " findings from "
+            },
+            {
+              "t": "strong",
+              "v": "contested"
+            },
+            {
+              "t": "text",
+              "v": " ones, preserving each source's characterization and methodological context."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Temporal data:"
+            },
+            {
+              "t": "text",
+              "v": " require publication/collection dates in structured outputs, so a 2023 statistic vs a 2026 statistic reads as a "
+            },
+            {
+              "t": "em",
+              "v": "time difference"
+            },
+            {
+              "t": "text",
+              "v": ", not a "
+            },
+            {
+              "t": "em",
+              "v": "contradiction"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Rendering:"
+            },
+            {
+              "t": "text",
+              "v": " keep content-appropriate formats in synthesis — financial data as tables, news as prose, technical findings as structured lists. Don't flatten everything to one format."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 6: Practice Questions"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your coordinator's prompt instructs it to delegate research, but every Task tool call fails. The subagent definitions are correct. Most likely cause?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Subagents cannot run in parallel"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "The coordinator's "
+          },
+          {
+            "t": "code",
+            "v": "allowedTools"
+          },
+          {
+            "t": "text",
+            "v": " does not include "
+          },
+          {
+            "t": "code",
+            "v": "\"Task\""
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "The subagents' system prompts are too long"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "fork_session was not enabled"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "The Task tool is the spawning mechanism; the coordinator must be permitted to call it."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "The synthesis agent produces reports with claims but no sources, even though the web-search agent's results contained URLs. What went wrong?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "The synthesis agent's model can't process URLs"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Findings were passed as prose summaries; claim–source mappings weren't preserved as structured data through the handoff"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "The coordinator should have generated citations itself"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Web search results expire between agent invocations"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Attribution is lost during summarization unless subagents output structured claim–source mappings (URL, document name, excerpt) that downstream agents are required to preserve."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Coordinator delegates 4 research subtasks. Currently it issues one Task call, waits, then issues the next. Total runtime is 4× a single task. Fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Reduce each subagent's max_tokens"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Emit all four Task tool calls in a single coordinator response so subagents run in parallel"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Merge the four subtasks into one subagent"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Cache subagent results between runs"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Parallel spawning = multiple Task calls in one response. C creates the too-broad/attention-dilution problem; A and D don't address sequencing."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Two credible sources report the market size as $4.2B and $6.8B. The document-analysis subagent should:"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Select the value from the more recent source and discard the other"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Average the two values"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Return both values, explicitly annotated with source attribution, and let the coordinator decide reconciliation before synthesis"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Omit the statistic entirely to avoid publishing conflicting data"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Annotate conflicts with attribution; the coordinator reconciles. Arbitrary selection (A), fabricated middle values (B), and silent omission (D) all corrupt the research. (Also check publication dates — the \"conflict\" may be temporal.)"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your document-analysis subagent has 18 tools including web search, and logs show it sometimes searches the web mid-analysis and picks the wrong extraction tool. Best fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Add a system-prompt instruction: \"only use analysis tools\""
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Restrict its tool set to the 4–5 analysis tools relevant to its role"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Fine-tune the model on correct tool selections"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Lower temperature"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Scoped tool access fixes both problems: fewer tools → more reliable selection; no out-of-role tools → no cross-specialization misuse. A is probabilistic; C is out of exam scope and over-engineered."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q6",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Reports consistently reflect findings from the first and last documents analyzed but omit key points from documents in the middle of the aggregated input. Mitigation?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Increase the context window"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Place a key-findings summary at the beginning of the aggregated input and organize details with explicit section headers"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Analyze fewer documents"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Repeat every document twice in the input"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "This is the lost-in-the-middle effect — a position/attention issue that bigger windows don't fix. Restructure the input to put critical content in high-attention positions."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Key Takeaways Card"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Hub-and-spoke: all communication through the coordinator; subagents have isolated context."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "allowedTools"
+            },
+            {
+              "t": "text",
+              "v": " must include "
+            },
+            {
+              "t": "code",
+              "v": "\"Task\""
+            },
+            {
+              "t": "text",
+              "v": "; parallel = multiple Task calls in ONE response."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Pass context explicitly, structured, content separated from metadata; require dates + sources."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Coverage gaps with successful subagents → coordinator decomposed too narrowly."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Errors: failure type + attempted query + partials + alternatives. Never generic, never silent-success, never kill-the-workflow."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Access failure ≠ empty result."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Conflicts: keep both, annotate, attribute; coordinator reconciles; separate established vs contested."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Scoped tools per role; scoped cross-role tool (verify_fact) for the high-frequency 85% case."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Docs"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Agent SDK subagents — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/api/agent-sdk/overview",
+          "href": "https://docs.claude.com/en/api/agent-sdk/overview"
+        },
+        {
+          "t": "text",
+          "v": " · Multi-agent patterns — "
+        },
+        {
+          "t": "link",
+          "v": "https://www.anthropic.com/engineering",
+          "href": "https://www.anthropic.com/engineering"
+        },
+        {
+          "t": "text",
+          "v": " (multi-agent research system post)"
+        }
+      ]
+    }
+  ]
+}

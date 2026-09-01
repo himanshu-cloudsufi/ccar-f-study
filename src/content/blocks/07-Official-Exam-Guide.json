@@ -1,0 +1,1375 @@
+{
+  "id": "exam-guide",
+  "title": "Claude Certified Architect – Foundations",
+  "subtitle": "Official Exam Guide (v0.2, June 30 2026)",
+  "blocks": [
+    {
+      "type": "callout",
+      "variant": "note",
+      "spans": [
+        { "t": "text", "v": "Converted from the official Anthropic exam guide PDF. This is the authoritative source for what the exam tests — every task statement below is fair game." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Introduction" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "The Claude Certified Architect – Foundations certification validates that practitioners can make informed decisions about tradeoffs when implementing real-world solutions with Claude. This exam tests foundational knowledge across " },
+        { "t": "strong", "v": "Claude Code, the Claude Agent SDK, the Claude API, and Model Context Protocol (MCP)" },
+        { "t": "text", "v": " — the core technologies used to build production-grade applications with Claude." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Questions are grounded in realistic scenarios drawn from actual customer use cases. Candidates must demonstrate not only conceptual knowledge but " },
+        { "t": "strong", "v": "practical judgment about architecture, configuration, and tradeoffs in production deployments" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Exam Details at a Glance" }]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [{ "t": "text", "v": "Item" }],
+        [{ "t": "text", "v": "Detail" }]
+      ],
+      "rows": [
+        [
+          [{ "t": "text", "v": "Credential" }],
+          [{ "t": "text", "v": "Claude Certified Architect – Foundations" }]
+        ],
+        [
+          [{ "t": "text", "v": "Number of questions" }],
+          [{ "t": "text", "v": "60" }]
+        ],
+        [
+          [{ "t": "text", "v": "Time limit" }],
+          [{ "t": "text", "v": "120 minutes" }]
+        ],
+        [
+          [{ "t": "text", "v": "Response format" }],
+          [{ "t": "text", "v": "Multiple choice; one correct answer and three incorrect options" }]
+        ],
+        [
+          [{ "t": "text", "v": "Exam structure" }],
+          [{ "t": "text", "v": "4 scenarios drawn from a bank of 6" }]
+        ],
+        [
+          [{ "t": "text", "v": "Content domains" }],
+          [{ "t": "text", "v": "5 (weightings below)" }]
+        ],
+        [
+          [{ "t": "text", "v": "Delivery" }],
+          [{ "t": "text", "v": "Online proctored or at a test center" }]
+        ],
+        [
+          [{ "t": "text", "v": "Exam fee" }],
+          [{ "t": "text", "v": "$125 USD" }]
+        ],
+        [
+          [{ "t": "text", "v": "Scoring" }],
+          [
+            { "t": "text", "v": "Scaled 100–1,000; minimum passing score " },
+            { "t": "strong", "v": "720" }
+          ]
+        ],
+        [
+          [{ "t": "text", "v": "Validity" }],
+          [{ "t": "text", "v": "12 months from award date; free non-proctored renewal assessment if renewed on time" }]
+        ],
+        [
+          [{ "t": "text", "v": "Retakes" }],
+          [{ "t": "text", "v": "Wait 14 / 30 / 90 days after attempts 1 / 2 / 3; max 4 attempts per rolling 12 months" }]
+        ],
+        [
+          [{ "t": "text", "v": "Result reporting" }],
+          [{ "t": "text", "v": "Pass or fail" }]
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "variant": "principle",
+      "spans": [
+        { "t": "text", "v": "The exam platform requires an answer to every question before you can advance — no question is left unanswered. Incorrect options are designed to be " },
+        { "t": "strong", "v": "plausible to a candidate with incomplete knowledge" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Target Candidate" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "A solution architect who designs and implements production applications with Claude, typically with " },
+        { "t": "strong", "v": "6+ months" },
+        { "t": "text", "v": " of practical experience, including hands-on work with:" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [{ "t": "text", "v": "Building agentic applications with the Claude Agent SDK: multi-agent orchestration, subagent delegation, tool integration, lifecycle hooks" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Configuring Claude Code for team workflows: CLAUDE.md files, Agent Skills, MCP server integrations, plan mode" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Designing MCP tool and resource interfaces for backend integration" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Engineering prompts for reliable structured output: JSON schemas, few-shot examples, extraction patterns" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Managing context windows across long documents, multi-turn conversations, multi-agent handoffs" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Integrating Claude into CI/CD pipelines: automated code review, test generation, PR feedback" }],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [{ "t": "text", "v": "Sound escalation and reliability decisions: error handling, human-in-the-loop workflows, self-evaluation patterns" }],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Content Outline" }]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [{ "t": "text", "v": "Domain" }],
+        [{ "t": "text", "v": "Weight" }]
+      ],
+      "rows": [
+        [
+          [{ "t": "text", "v": "1. Agentic Architecture & Orchestration" }],
+          [{ "t": "text", "v": "27%" }]
+        ],
+        [
+          [{ "t": "text", "v": "2. Tool Design & MCP Integration" }],
+          [{ "t": "text", "v": "18%" }]
+        ],
+        [
+          [{ "t": "text", "v": "3. Claude Code Configuration & Workflows" }],
+          [{ "t": "text", "v": "20%" }]
+        ],
+        [
+          [{ "t": "text", "v": "4. Prompt Engineering & Structured Output" }],
+          [{ "t": "text", "v": "20%" }]
+        ],
+        [
+          [{ "t": "text", "v": "5. Context Management & Reliability" }],
+          [{ "t": "text", "v": "15%" }]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "The Six Exam Scenarios" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [{ "t": "text", "v": "4 of these 6 are presented at random on each exam form:" }]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "Customer Support Resolution Agent" },
+            { "t": "text", "v": " — Agent SDK, MCP tools (get_customer, lookup_order, process_refund, escalate_to_human), 80%+ first-contact resolution target. " },
+            { "t": "em", "v": "(D1, D2, D5)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Code Generation with Claude Code" },
+            { "t": "text", "v": " — custom slash commands, CLAUDE.md configurations, plan mode vs direct execution. " },
+            { "t": "em", "v": "(D3, D5)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Multi-Agent Research System" },
+            { "t": "text", "v": " — coordinator delegating to web-search, document-analysis, synthesis, and report subagents; cited reports. " },
+            { "t": "em", "v": "(D1, D2, D5)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Developer Productivity with Claude" },
+            { "t": "text", "v": " — codebase exploration, legacy systems, boilerplate, built-in tools (Read, Write, Bash, Grep, Glob), MCP servers. " },
+            { "t": "em", "v": "(D2, D3, D1)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Claude Code for Continuous Integration" },
+            { "t": "text", "v": " — automated reviews, test generation, PR feedback, actionable output, minimal false positives. " },
+            { "t": "em", "v": "(D3, D4)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Structured Data Extraction" },
+            { "t": "text", "v": " — extraction from unstructured documents, JSON schema validation, edge cases, downstream integration. " },
+            { "t": "em", "v": "(D4, D5)" }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Domain 1: Agentic Architecture & Orchestration (27%)" }]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.1 Design and implement agentic loops for autonomous task execution" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "the agentic loop lifecycle — send request, inspect " },
+        { "t": "code", "v": "stop_reason" },
+        { "t": "text", "v": " (" },
+        { "t": "code", "v": "\"tool_use\"" },
+        { "t": "text", "v": " vs " },
+        { "t": "code", "v": "\"end_turn\"" },
+        { "t": "text", "v": "), execute requested tools, return results for the next iteration; how tool results are appended to conversation history so the model can reason about the next action; model-driven decision-making vs pre-configured decision trees or fixed tool sequences." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "loop control flow that continues on " },
+        { "t": "code", "v": "\"tool_use\"" },
+        { "t": "text", "v": " and terminates on " },
+        { "t": "code", "v": "\"end_turn\"" },
+        { "t": "text", "v": "; adding tool results to context between iterations; " },
+        { "t": "strong", "v": "avoiding anti-patterns" },
+        { "t": "text", "v": " — parsing natural-language signals for termination, arbitrary iteration caps as the primary stop, or checking for assistant text content as a completion indicator." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.2 Orchestrate multi-agent systems with coordinator-subagent patterns" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "hub-and-spoke architecture — the coordinator manages all inter-subagent communication, error handling, and information routing; subagents operate with " },
+        { "t": "strong", "v": "isolated context" },
+        { "t": "text", "v": " (no automatic inheritance of coordinator history); coordinator's role in decomposition, delegation, aggregation, and choosing which subagents to invoke; " },
+        { "t": "strong", "v": "risk of overly narrow decomposition" },
+        { "t": "text", "v": " causing incomplete coverage." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "coordinators that dynamically select subagents rather than always running the full pipeline; partitioning research scope to minimize duplication (distinct subtopics or source types per agent); " },
+        { "t": "strong", "v": "iterative refinement loops" },
+        { "t": "text", "v": " — evaluate synthesis output for gaps, re-delegate targeted queries, re-invoke synthesis; routing all communication through the coordinator for observability and controlled information flow." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.3 Configure subagent invocation, context passing, and spawning" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "the " },
+        { "t": "strong", "v": "Task tool" },
+        { "t": "text", "v": " as the spawning mechanism; the coordinator's " },
+        { "t": "code", "v": "allowedTools" },
+        { "t": "text", "v": " must include " },
+        { "t": "code", "v": "\"Task\"" },
+        { "t": "text", "v": "; subagent context must be " },
+        { "t": "strong", "v": "explicitly provided in the prompt" },
+        { "t": "text", "v": " — no automatic inheritance, no shared memory between invocations; " },
+        { "t": "code", "v": "AgentDefinition" },
+        { "t": "text", "v": " (descriptions, system prompts, tool restrictions); fork-based session management from a shared analysis baseline." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "including complete prior findings directly in the subagent's prompt; " },
+        { "t": "strong", "v": "structured formats separating content from metadata" },
+        { "t": "text", "v": " (source URLs, document names, page numbers) to preserve attribution; " },
+        { "t": "strong", "v": "parallel spawning = multiple Task tool calls in a single coordinator response" },
+        { "t": "text", "v": " (not across turns); coordinator prompts that specify research goals and quality criteria rather than step-by-step procedures." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.4 Implement multi-step workflows with enforcement and handoff patterns" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "programmatic enforcement (hooks, prerequisite gates) vs prompt-based guidance; when deterministic compliance is required (e.g., identity verification before financial operations), " },
+        { "t": "strong", "v": "prompt instructions alone have a non-zero failure rate" },
+        { "t": "text", "v": "; structured handoff protocols for mid-process escalation." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "programmatic prerequisites that block downstream tool calls until prerequisites complete (e.g., block " },
+        { "t": "code", "v": "process_refund" },
+        { "t": "text", "v": " until " },
+        { "t": "code", "v": "get_customer" },
+        { "t": "text", "v": " returns a verified ID); decomposing multi-concern requests into distinct items, investigating in parallel with shared context, synthesizing a unified resolution; compiling structured handoff summaries (customer ID, root cause, refund amount, recommended action) for human agents who lack the transcript." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.5 Apply Agent SDK hooks for tool call interception and data normalization" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "strong", "v": "PostToolUse hooks" },
+        { "t": "text", "v": " intercept tool " },
+        { "t": "em", "v": "results" },
+        { "t": "text", "v": " for transformation before the model processes them; tool-call interception hooks intercept " },
+        { "t": "em", "v": "outgoing" },
+        { "t": "text", "v": " calls to enforce compliance (e.g., block refunds above a threshold); hooks = deterministic guarantees, prompts = probabilistic compliance." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "PostToolUse hooks normalizing heterogeneous formats (Unix timestamps, ISO 8601, numeric status codes); interception hooks blocking policy-violating actions (refunds > $500) and redirecting to escalation; choosing hooks over prompts when business rules require guaranteed compliance." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.6 Design task decomposition strategies for complex workflows" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "fixed sequential pipelines (" },
+        { "t": "strong", "v": "prompt chaining" },
+        { "t": "text", "v": ") vs " },
+        { "t": "strong", "v": "dynamic adaptive decomposition" },
+        { "t": "text", "v": " based on intermediate findings; chaining pattern for reviews — analyze each file individually, then a cross-file integration pass; adaptive plans that generate subtasks from discoveries." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "chaining for predictable multi-aspect reviews; dynamic decomposition for open-ended investigation; per-file passes + separate cross-file integration pass to avoid attention dilution; decomposing open-ended tasks (e.g., \"add comprehensive tests to a legacy codebase\") by mapping structure → identifying high-impact areas → prioritized plan that adapts." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "1.7 Manage session state, resumption, and forking" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "code", "v": "--resume <session-name>" },
+        { "t": "text", "v": " for named session resumption; " },
+        { "t": "code", "v": "fork_session" },
+        { "t": "text", "v": " for independent branches from a shared baseline; informing the agent about changed files when resuming; why a " },
+        { "t": "strong", "v": "new session with a structured summary" },
+        { "t": "text", "v": " beats resuming with stale tool results." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "code", "v": "--resume" },
+        { "t": "text", "v": " for continuing named investigations; " },
+        { "t": "code", "v": "fork_session" },
+        { "t": "text", "v": " for parallel exploration branches (comparing two strategies from one analysis); resumption when prior context is mostly valid vs fresh-with-summary when stale; naming specific changed files for targeted re-analysis." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Domain 2: Tool Design & MCP Integration (18%)" }]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "2.1 Design effective tool interfaces with clear descriptions and boundaries" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "tool descriptions as the " },
+        { "t": "strong", "v": "primary selection mechanism" },
+        { "t": "text", "v": " — minimal descriptions cause unreliable selection among similar tools; descriptions should include input formats, example queries, edge cases, boundaries; overlapping descriptions cause misrouting; " },
+        { "t": "strong", "v": "system prompt wording" },
+        { "t": "text", "v": " can create unintended tool associations." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "descriptions that differentiate purpose, inputs, outputs, and when to use vs alternatives; renaming to eliminate overlap (" },
+        { "t": "code", "v": "analyze_content" },
+        { "t": "text", "v": " → " },
+        { "t": "code", "v": "extract_web_results" },
+        { "t": "text", "v": "); splitting generic tools into purpose-specific ones (" },
+        { "t": "code", "v": "analyze_document" },
+        { "t": "text", "v": " → " },
+        { "t": "code", "v": "extract_data_points" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "summarize_content" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "verify_claim_against_source" },
+        { "t": "text", "v": "); reviewing system prompts for keyword-sensitive instructions." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "2.2 Implement structured error responses for MCP tools" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "the MCP " },
+        { "t": "code", "v": "isError" },
+        { "t": "text", "v": " flag pattern; error taxonomy — " },
+        { "t": "strong", "v": "transient" },
+        { "t": "text", "v": " (timeouts), " },
+        { "t": "strong", "v": "validation" },
+        { "t": "text", "v": " (bad input), " },
+        { "t": "strong", "v": "business" },
+        { "t": "text", "v": " (policy violations), " },
+        { "t": "strong", "v": "permission" },
+        { "t": "text", "v": "; why generic \"Operation failed\" responses prevent recovery decisions; retryable vs non-retryable metadata prevents wasted retries." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "structured metadata — " },
+        { "t": "code", "v": "errorCategory" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "isRetryable" },
+        { "t": "text", "v": ", human-readable descriptions; " },
+        { "t": "code", "v": "retriable: false" },
+        { "t": "text", "v": " + customer-friendly explanations for business violations; " },
+        { "t": "strong", "v": "local recovery in subagents for transients" },
+        { "t": "text", "v": ", propagating only unresolvable errors with partials and attempts; distinguishing " },
+        { "t": "strong", "v": "access failures" },
+        { "t": "text", "v": " (retry decision needed) from " },
+        { "t": "strong", "v": "valid empty results" },
+        { "t": "text", "v": " (successful query, no matches)." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "2.3 Distribute tools appropriately across agents and configure tool choice" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "too many tools (18 vs 4–5) degrades selection reliability; agents misuse out-of-specialization tools; scoped access — role-relevant tools plus limited cross-role tools for high-frequency needs; " },
+        { "t": "code", "v": "tool_choice" },
+        { "t": "text", "v": ": " },
+        { "t": "code", "v": "\"auto\"" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "\"any\"" },
+        { "t": "text", "v": ", forced " },
+        { "t": "code", "v": "{\"type\": \"tool\", \"name\": \"...\"}" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "restricting each subagent's tool set to its role; constrained alternatives (" },
+        { "t": "code", "v": "fetch_url" },
+        { "t": "text", "v": " → " },
+        { "t": "code", "v": "load_document" },
+        { "t": "text", "v": " with URL validation); scoped cross-role tools (a " },
+        { "t": "code", "v": "verify_fact" },
+        { "t": "text", "v": " tool for synthesis) with coordinator routing for complex cases; forced tool selection to guarantee a specific tool runs first (e.g., " },
+        { "t": "code", "v": "extract_metadata" },
+        { "t": "text", "v": " before enrichment); " },
+        { "t": "code", "v": "tool_choice: \"any\"" },
+        { "t": "text", "v": " to guarantee a tool call instead of conversational text." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "2.4 Integrate MCP servers into Claude Code and agent workflows" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "scoping — project " },
+        { "t": "code", "v": ".mcp.json" },
+        { "t": "text", "v": " (shared via git) vs user " },
+        { "t": "code", "v": "~/.claude.json" },
+        { "t": "text", "v": " (personal/experimental); " },
+        { "t": "strong", "v": "environment variable expansion" },
+        { "t": "text", "v": " (" },
+        { "t": "code", "v": "${GITHUB_TOKEN}" },
+        { "t": "text", "v": ") for credentials without committing secrets; tools from " },
+        { "t": "strong", "v": "all configured servers discovered at connection time, available simultaneously" },
+        { "t": "text", "v": "; " },
+        { "t": "strong", "v": "MCP resources" },
+        { "t": "text", "v": " as content catalogs (issue summaries, documentation hierarchies, database schemas) that reduce exploratory tool calls." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "shared servers in " },
+        { "t": "code", "v": ".mcp.json" },
+        { "t": "text", "v": " with env-var expansion; personal servers in " },
+        { "t": "code", "v": "~/.claude.json" },
+        { "t": "text", "v": "; " },
+        { "t": "strong", "v": "enhancing MCP tool descriptions" },
+        { "t": "text", "v": " so the agent doesn't prefer built-ins like Grep; " },
+        { "t": "strong", "v": "community servers for standard integrations" },
+        { "t": "text", "v": " (Jira), custom servers only for team-specific workflows; exposing content catalogs as resources." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "2.5 Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob)" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "strong", "v": "Grep = content search" },
+        { "t": "text", "v": " (function callers, error messages, imports); " },
+        { "t": "strong", "v": "Glob = file path/name patterns" },
+        { "t": "text", "v": "; Read/Write for full files; " },
+        { "t": "strong", "v": "Edit = targeted modification via unique text matching" },
+        { "t": "text", "v": "; when Edit fails on non-unique matches → " },
+        { "t": "strong", "v": "Read + Write fallback" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "Grep for content, Glob for names (" },
+        { "t": "code", "v": "**/*.test.tsx" },
+        { "t": "text", "v": "); Read → Write when Edit can't find unique anchor text; " },
+        { "t": "strong", "v": "incremental exploration" },
+        { "t": "text", "v": " — Grep entry points, then Read to trace imports/flows, never read-everything-upfront; tracing re-exported functions by identifying all exported names, then Grepping each name." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Domain 3: Claude Code Configuration & Workflows (20%)" }]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.1 Configure CLAUDE.md hierarchy, scoping, and modular organization" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "hierarchy — user " },
+        { "t": "code", "v": "~/.claude/CLAUDE.md" },
+        { "t": "text", "v": ", project " },
+        { "t": "code", "v": ".claude/CLAUDE.md" },
+        { "t": "text", "v": " or root " },
+        { "t": "code", "v": "CLAUDE.md" },
+        { "t": "text", "v": ", directory-level files; " },
+        { "t": "strong", "v": "user-level settings are never shared via version control" },
+        { "t": "text", "v": "; " },
+        { "t": "code", "v": "@import" },
+        { "t": "text", "v": " syntax for modular external files; " },
+        { "t": "code", "v": ".claude/rules/" },
+        { "t": "text", "v": " for topic-specific rule files." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "diagnosing hierarchy issues (new teammate missing instructions that live in user-level config); " },
+        { "t": "code", "v": "@import" },
+        { "t": "text", "v": " for selective per-package standards; splitting monolithic CLAUDE.md into " },
+        { "t": "code", "v": ".claude/rules/" },
+        { "t": "text", "v": " topic files (testing.md, api-conventions.md, deployment.md); " },
+        { "t": "code", "v": "/memory" },
+        { "t": "text", "v": " to verify which memory files are loaded." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.2 Create and configure custom slash commands and skills" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "project commands " },
+        { "t": "code", "v": ".claude/commands/" },
+        { "t": "text", "v": " (shared) vs user " },
+        { "t": "code", "v": "~/.claude/commands/" },
+        { "t": "text", "v": " (personal); skills in " },
+        { "t": "code", "v": ".claude/skills/" },
+        { "t": "text", "v": " with SKILL.md frontmatter — " },
+        { "t": "code", "v": "context: fork" },
+        { "t": "text", "v": " (isolated sub-agent context), " },
+        { "t": "code", "v": "allowed-tools" },
+        { "t": "text", "v": " (restrict tools), " },
+        { "t": "code", "v": "argument-hint" },
+        { "t": "text", "v": " (prompt for parameters); personal skill variants under " },
+        { "t": "code", "v": "~/.claude/skills/" },
+        { "t": "text", "v": " with different names." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "project-scoped commands for team-wide availability; " },
+        { "t": "code", "v": "context: fork" },
+        { "t": "text", "v": " for verbose/exploratory skills; " },
+        { "t": "code", "v": "allowed-tools" },
+        { "t": "text", "v": " to prevent destructive actions; " },
+        { "t": "code", "v": "argument-hint" },
+        { "t": "text", "v": " for required parameters; choosing skills (on-demand, task-specific) vs CLAUDE.md (always-loaded, universal)." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.3 Apply path-specific rules for conditional convention loading" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "code", "v": ".claude/rules/" },
+        { "t": "text", "v": " files with YAML frontmatter " },
+        { "t": "code", "v": "paths" },
+        { "t": "text", "v": " glob patterns; path-scoped rules load only when editing matching files (less irrelevant context, fewer tokens); " },
+        { "t": "strong", "v": "glob rules beat directory CLAUDE.md for file types spread across directories" },
+        { "t": "text", "v": " (test files everywhere)." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "code", "v": "paths: [\"terraform/**/*\"]" },
+        { "t": "text", "v": " for subtree conventions; " },
+        { "t": "code", "v": "**/*.test.tsx" },
+        { "t": "text", "v": " for scattered file types; choosing rules over subdirectory CLAUDE.md when conventions span the codebase." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.4 Determine when to use plan mode vs direct execution" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "plan mode for large-scale changes, multiple valid approaches, architectural decisions, multi-file modifications; direct execution for simple well-scoped changes; plan mode enables safe exploration before committing; the " },
+        { "t": "strong", "v": "Explore subagent" },
+        { "t": "text", "v": " isolates verbose discovery output, returning summaries." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "plan mode for architectural work (microservice restructuring, 45+-file migrations, competing integration approaches); direct execution for clear-scope fixes (single-file bug with stack trace, one validation conditional); Explore subagent to prevent context exhaustion; " },
+        { "t": "strong", "v": "plan mode for investigation + direct execution for implementation" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.5 Apply iterative refinement techniques" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "strong", "v": "concrete input/output examples" },
+        { "t": "text", "v": " — the most effective way to communicate transformations when prose is interpreted inconsistently; test-driven iteration (tests first, iterate on failures); the " },
+        { "t": "strong", "v": "interview pattern" },
+        { "t": "text", "v": " — Claude asks questions to surface unanticipated considerations; single message for interacting issues vs sequential for independent ones." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "2–3 I/O example pairs for inconsistent transformations; test suites covering behavior/edge cases/performance before implementation; interview pattern for unfamiliar domains (cache invalidation, failure modes); specific test cases for edge handling (nulls in migration scripts); batching interacting fixes in one detailed message." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "3.6 Integrate Claude Code into CI/CD pipelines" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "code", "v": "-p" },
+        { "t": "text", "v": " / " },
+        { "t": "code", "v": "--print" },
+        { "t": "text", "v": " for non-interactive mode; " },
+        { "t": "code", "v": "--output-format json" },
+        { "t": "text", "v": " and " },
+        { "t": "code", "v": "--json-schema" },
+        { "t": "text", "v": " for structured CI output; CLAUDE.md provides project context (testing standards, fixtures, review criteria) to CI-invoked runs; " },
+        { "t": "strong", "v": "session context isolation" },
+        { "t": "text", "v": " — the generating session is less effective at reviewing its own changes." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "code", "v": "-p" },
+        { "t": "text", "v": " to prevent interactive hangs; JSON + schema for machine-parseable findings posted as inline PR comments; including " },
+        { "t": "strong", "v": "prior review findings" },
+        { "t": "text", "v": " in re-reviews to report only new/unaddressed issues; providing " },
+        { "t": "strong", "v": "existing test files" },
+        { "t": "text", "v": " so generation avoids duplicates; documenting standards in CLAUDE.md to reduce low-value test output." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Domain 4: Prompt Engineering & Structured Output (20%)" }]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.1 Design prompts with explicit criteria to reduce false positives" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "explicit criteria beat vague instructions (\"flag comments only when claimed behavior contradicts actual code behavior\" vs \"check comments are accurate\"); \"be conservative\" / \"only high-confidence findings\" " },
+        { "t": "strong", "v": "do not improve precision" },
+        { "t": "text", "v": "; high false-positive categories undermine trust in accurate categories." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "categorical criteria — which issues to report (bugs, security) vs skip (minor style) — not confidence-based filtering; " },
+        { "t": "strong", "v": "temporarily disabling high-FP categories" },
+        { "t": "text", "v": " to restore trust while fixing prompts; explicit severity criteria with concrete code examples per level." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.2 Apply few-shot prompting for consistency and quality" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "few-shot examples as the most effective technique when detailed instructions alone yield inconsistent output; demonstrating ambiguous-case handling; enabling " },
+        { "t": "strong", "v": "generalization to novel patterns" },
+        { "t": "text", "v": ", not just pre-listed cases; reducing hallucination in extraction (informal measurements, varied structures)." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "strong", "v": "2–4 targeted examples" },
+        { "t": "text", "v": " for ambiguous scenarios showing the reasoning for the chosen action; examples demonstrating exact output format (location, issue, severity, fix); examples distinguishing acceptable patterns from genuine issues; examples for varied document structures (inline citations vs bibliographies); examples fixing empty/null extraction of present-but-unusual fields." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.3 Enforce structured output using tool use and JSON schemas" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "code", "v": "tool_use" },
+        { "t": "text", "v": " with JSON schemas = the most reliable schema-compliant output, " },
+        { "t": "strong", "v": "eliminating syntax errors" },
+        { "t": "text", "v": "; " },
+        { "t": "code", "v": "tool_choice" },
+        { "t": "text", "v": " — " },
+        { "t": "code", "v": "\"auto\"" },
+        { "t": "text", "v": " (may return text), " },
+        { "t": "code", "v": "\"any\"" },
+        { "t": "text", "v": " (must call some tool), forced (must call the named tool); strict schemas eliminate syntax errors but " },
+        { "t": "strong", "v": "not semantic errors" },
+        { "t": "text", "v": " (line items not summing, wrong-field values); required vs optional fields; enums with \"other\" + detail string." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "extraction tools whose input schema is the target schema, reading data from the tool_use block; " },
+        { "t": "code", "v": "\"any\"" },
+        { "t": "text", "v": " when multiple schemas exist and document type is unknown; forced selection to run a specific extraction first; " },
+        { "t": "strong", "v": "nullable fields prevent fabrication" },
+        { "t": "text", "v": " when data may be absent; \"unclear\" enum values and \"other\"+detail; format normalization rules in the prompt alongside strict schemas." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.4 Implement validation, retry, and feedback loops" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "retry-with-error-feedback — append the specific validation errors on retry; " },
+        { "t": "strong", "v": "retries cannot recover information absent from the source" },
+        { "t": "text", "v": "; " },
+        { "t": "code", "v": "detected_pattern" },
+        { "t": "text", "v": " fields enable systematic false-positive analysis; semantic validation errors vs schema syntax errors." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "follow-ups containing the original document + failed extraction + specific errors; identifying retry-effective failures (format, structure) vs retry-ineffective (absent information); " },
+        { "t": "code", "v": "detected_pattern" },
+        { "t": "text", "v": " for dismissal analysis; self-correction flows — " },
+        { "t": "code", "v": "calculated_total" },
+        { "t": "text", "v": " vs " },
+        { "t": "code", "v": "stated_total" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "conflict_detected" },
+        { "t": "text", "v": " booleans." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.5 Design efficient batch processing strategies" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "Message Batches API — " },
+        { "t": "strong", "v": "50% cost savings, up to 24-hour window, no latency SLA" },
+        { "t": "text", "v": "; appropriate for non-blocking latency-tolerant loads (overnight reports, weekly audits), inappropriate for blocking workflows (pre-merge checks); " },
+        { "t": "strong", "v": "no multi-turn tool calling within a batch request" },
+        { "t": "text", "v": "; " },
+        { "t": "code", "v": "custom_id" },
+        { "t": "text", "v": " for request/response correlation." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "synchronous for blocking checks, batch for overnight/weekly; " },
+        { "t": "strong", "v": "submission frequency from SLA math" },
+        { "t": "text", "v": " (4-hour windows to guarantee a 30-hour SLA with 24-hour processing); resubmitting only failures by " },
+        { "t": "code", "v": "custom_id" },
+        { "t": "text", "v": " with modifications (chunking oversized documents); refining prompts on a sample set before large batch runs." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "4.6 Design multi-instance and multi-pass review architectures" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "self-review limitations — retained generation reasoning makes a model unlikely to question its own decisions; " },
+        { "t": "strong", "v": "independent review instances" },
+        { "t": "text", "v": " beat self-review instructions and extended thinking; multi-pass review — per-file local passes + cross-file integration passes avoid attention dilution and contradictory findings." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "a second independent instance without the generator's reasoning context; per-file passes + integration pass for large PRs; verification passes with self-reported per-finding confidence for " },
+        { "t": "strong", "v": "calibrated review routing" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Domain 5: Context Management & Reliability (15%)" }]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.1 Preserve critical information across long interactions" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "progressive summarization condenses numbers, percentages, dates, and stated expectations into vague prose; the " },
+        { "t": "strong", "v": "lost-in-the-middle" },
+        { "t": "text", "v": " effect; tool results consume tokens disproportionately (40+ fields when 5 matter); passing complete history for coherence." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "persistent " },
+        { "t": "strong", "v": "case-facts blocks" },
+        { "t": "text", "v": " (amounts, dates, order numbers, statuses) outside summarized history; per-issue structured data in a separate context layer; " },
+        { "t": "strong", "v": "trimming verbose tool outputs" },
+        { "t": "text", "v": " to relevant fields before accumulation; key-findings summaries at the beginning + explicit section headers; requiring metadata (dates, sources, methodology) in structured outputs; upstream agents returning structured data instead of verbose prose when downstream budgets are tight." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.2 Design escalation and ambiguity resolution patterns" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "escalation triggers — explicit human request, " },
+        { "t": "strong", "v": "policy gaps/exceptions" },
+        { "t": "text", "v": " (not mere complexity), inability to progress; escalate immediately on explicit demand vs offer to resolve when straightforward; " },
+        { "t": "strong", "v": "sentiment and self-reported confidence are unreliable proxies" },
+        { "t": "text", "v": "; multiple matches → ask for identifiers, never heuristic selection." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "explicit escalation criteria + few-shot escalate-vs-resolve examples; honoring explicit human requests immediately without investigating first; acknowledging frustration while offering resolution (escalate only if reiterated); escalating on policy silence/ambiguity (competitor price matching when policy covers only own-site); asking for additional identifiers on multiple matches." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.3 Implement error propagation across multi-agent systems" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "structured error context (failure type, attempted query, partial results, alternatives) enables intelligent coordinator recovery; access failures vs valid empty results; generic statuses hide context; " },
+        { "t": "strong", "v": "silent suppression and whole-workflow termination are both anti-patterns" },
+        { "t": "text", "v": "." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "structured error context for coordinator recovery; distinguishing access failure from empty result; local recovery for transients, propagating only unresolvable errors with attempts and partials; " },
+        { "t": "strong", "v": "coverage annotations" },
+        { "t": "text", "v": " in synthesis — well-supported findings vs gaps from unavailable sources." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.4 Manage context in large codebase exploration" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "degradation symptoms — inconsistent answers, citing \"typical patterns\" instead of discovered specifics; scratchpad files persist findings across context boundaries; subagent delegation isolates verbose output; structured state persistence (manifests) for crash recovery." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "subagents for specific verbose questions while the main agent coordinates; scratchpad files of key findings; phase summaries injected into next-phase subagent context; crash recovery via agent state exports + coordinator-loaded manifests; " },
+        { "t": "code", "v": "/compact" },
+        { "t": "text", "v": " when discovery output fills the window." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.5 Design human review workflows and confidence calibration" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "aggregate accuracy (97%) can mask poor performance on specific document types or fields; " },
+        { "t": "strong", "v": "stratified random sampling" },
+        { "t": "text", "v": " of high-confidence extractions for error measurement and novel-pattern detection; field-level confidence " },
+        { "t": "strong", "v": "calibrated on labeled validation sets" },
+        { "t": "text", "v": "; segment validation before automating." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "stratified sampling of the automated stream, ongoing; accuracy analysis by document type and field before reducing review; field-level confidence + calibrated thresholds; routing low-confidence and ambiguous/contradictory documents to human review." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "5.6 Preserve provenance and handle uncertainty in multi-source synthesis" }]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Knowledge of" }],
+      "spans": [
+        { "t": "text", "v": "attribution is lost in summarization unless claim–source mappings are preserved; synthesis must preserve and merge structured mappings; conflicting statistics → annotate with attribution, never arbitrarily select; publication/collection dates prevent temporal differences reading as contradictions." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [{ "t": "text", "v": "Skills in" }],
+      "spans": [
+        { "t": "text", "v": "structured claim–source mappings (URLs, document names, excerpts) preserved through synthesis; reports separating " },
+        { "t": "strong", "v": "well-established" },
+        { "t": "text", "v": " from " },
+        { "t": "strong", "v": "contested" },
+        { "t": "text", "v": " findings with source characterizations; document analysis completing with both conflicting values annotated — the coordinator reconciles; dates in structured outputs; content-appropriate rendering (financial tables, news prose, technical lists)." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Official Sample Questions" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Twelve sample questions with answers appear in the guide (customer support ×3, Claude Code ×3, multi-agent ×3, CI/CD ×3). " },
+        { "t": "strong", "v": "All twelve are included in this app's Test mode" },
+        { "t": "text", "v": ", tagged \"official exam guide\" — practice them there with shuffled options." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Preparation Exercises" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "strong", "v": "Exercise 1 — Multi-tool agent with escalation logic" },
+        { "t": "text", "v": " " },
+        { "t": "em", "v": "(D1, D2, D5)" },
+        { "t": "text", "v": ": define 3–4 MCP tools with differentiating descriptions (include two deliberately similar ones); implement a stop_reason-driven loop; add structured errors (errorCategory, isRetryable) and verify per-category handling; add an interception hook enforcing a threshold rule with escalation redirect; test multi-concern messages for decomposition + unified synthesis." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "strong", "v": "Exercise 2 — Claude Code for a team workflow" },
+        { "t": "text", "v": " " },
+        { "t": "em", "v": "(D3, D2)" },
+        { "t": "text", "v": ": project CLAUDE.md with universal standards; " },
+        { "t": "code", "v": ".claude/rules/" },
+        { "t": "text", "v": " with glob frontmatter, verified to load conditionally; a project skill with " },
+        { "t": "code", "v": "context: fork" },
+        { "t": "text", "v": " + " },
+        { "t": "code", "v": "allowed-tools" },
+        { "t": "text", "v": ", verified isolated; " },
+        { "t": "code", "v": ".mcp.json" },
+        { "t": "text", "v": " with env-var expansion plus a personal server in " },
+        { "t": "code", "v": "~/.claude.json" },
+        { "t": "text", "v": ", both active simultaneously; compare plan mode vs direct execution across a bug fix, a migration, and a multi-approach feature." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "strong", "v": "Exercise 3 — Structured data extraction pipeline" },
+        { "t": "text", "v": " " },
+        { "t": "em", "v": "(D4, D5)" },
+        { "t": "text", "v": ": extraction tool with required/optional fields, \"other\"+detail enum, nullable fields — verify nulls instead of fabrication; validation-retry loop with document + failed extraction + errors, tracking retry-resolvable vs not; few-shot examples for varied formats; a 100-document batch run with custom_id failure handling and SLA math; confidence-based human review routing with segment-level accuracy analysis." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "strong", "v": "Exercise 4 — Multi-agent research pipeline" },
+        { "t": "text", "v": " " },
+        { "t": "em", "v": "(D1, D2, D5)" },
+        { "t": "text", "v": ": coordinator with " },
+        { "t": "code", "v": "\"Task\"" },
+        { "t": "text", "v": " in allowedTools delegating to two subagents with explicit context in prompts; parallel spawning via multiple Task calls in one response (measure the latency gain); structured findings (claim, excerpt, source, date) with attribution preserved through synthesis; simulated timeout → verify structured error context and coverage-gap annotation; conflicting sources → verify both values preserved with attribution, established vs contested sections." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Appendix: Technologies and Concepts" }]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "Claude Agent SDK" },
+            { "t": "text", "v": " — agent definitions, agentic loops, stop_reason handling, hooks (PostToolUse, tool-call interception), Task-tool subagent spawning, allowedTools" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "MCP" },
+            { "t": "text", "v": " — servers, tools, resources, isError flag, tool descriptions, tool distribution, .mcp.json, env-var expansion" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Claude Code" },
+            { "t": "text", "v": " — CLAUDE.md hierarchy, .claude/rules/ path scoping, .claude/commands/, .claude/skills/ frontmatter (context: fork, allowed-tools, argument-hint), plan mode, /memory, /compact, --resume, fork_session, Explore subagent" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Claude Code CLI" },
+            { "t": "text", "v": " — -p/--print, --output-format json, --json-schema" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Claude API" },
+            { "t": "text", "v": " — tool_use with JSON schemas, tool_choice, stop_reason values, max_tokens, system prompts" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Message Batches API" },
+            { "t": "text", "v": " — 50% savings, ≤24h window, custom_id, polling, no multi-turn tool calling" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "JSON Schema / Pydantic" },
+            { "t": "text", "v": " — required vs optional, enums, nullable fields, \"other\"+detail, validation-retry loops, semantic validation" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Built-in tools" },
+            { "t": "text", "v": " — Read, Write, Edit, Bash, Grep, Glob" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Few-shot prompting · Prompt chaining · Context window management · Session management · Confidence scoring" }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [{ "t": "text", "v": "Out-of-Scope (will NOT appear)" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Fine-tuning; API auth/billing; language/framework internals; MCP server hosting/infrastructure; Claude internals/training; Constitutional AI/RLHF; embeddings/vector DBs; computer use; vision; streaming; rate limits/pricing math; OAuth/key rotation; cloud-provider specifics; benchmarking; prompt-caching internals; tokenization." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "Preparation Recommendations" }]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "Build an agent with the Agent SDK" },
+            { "t": "text", "v": " — full agentic loop, tool calling, error handling, session management, subagent spawning with context passing." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Configure Claude Code on a real project" },
+            { "t": "text", "v": " — CLAUDE.md hierarchy, path-specific rules, skills with frontmatter, at least one MCP server." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Design and test MCP tools" },
+            { "t": "text", "v": " — differentiating descriptions, structured errors with categories and retryable flags, selection testing with ambiguous requests." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Build an extraction pipeline" },
+            { "t": "text", "v": " — tool_use + schemas, validation-retry, nullable fields, Batch API practice." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Practice prompt engineering" },
+            { "t": "text", "v": " — few-shot for ambiguity, explicit review criteria, multi-pass review architectures." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Study context management" },
+            { "t": "text", "v": " — fact extraction from verbose outputs, scratchpad files, subagent delegation." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Review escalation patterns" },
+            { "t": "text", "v": " — when to escalate vs resolve, confidence-based human review routing." }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

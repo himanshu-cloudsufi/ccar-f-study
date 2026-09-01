@@ -1,0 +1,1642 @@
+{
+  "id": "s4",
+  "title": "Scenario 4: Developer Productivity with Claude",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Context"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "You build developer-productivity tools with the "
+        },
+        {
+          "t": "strong",
+          "v": "Claude Agent SDK"
+        },
+        {
+          "t": "text",
+          "v": ": exploring unfamiliar codebases, understanding legacy systems, generating boilerplate, automating repetitive tasks. Uses "
+        },
+        {
+          "t": "strong",
+          "v": "built-in tools"
+        },
+        {
+          "t": "text",
+          "v": " (Read, Write, Edit, Bash, Grep, Glob) and integrates "
+        },
+        {
+          "t": "strong",
+          "v": "MCP servers"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Primary domains"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Tool Design & MCP Integration (D2) · Claude Code Configuration & Workflows (D3) · Agentic Architecture & Orchestration (D1)"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 1: Built-in Tools — Purposes and Selection (Task Statement 2.5)"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Tool"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Purpose"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Example"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Grep"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Search file "
+            },
+            {
+              "t": "strong",
+              "v": "contents"
+            },
+            {
+              "t": "text",
+              "v": " for patterns"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Find all callers of "
+            },
+            {
+              "t": "code",
+              "v": "processPayment"
+            },
+            {
+              "t": "text",
+              "v": ", locate an error message, find import statements"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Glob"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Match file "
+            },
+            {
+              "t": "strong",
+              "v": "paths/names"
+            },
+            {
+              "t": "text",
+              "v": " by pattern"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Find all "
+            },
+            {
+              "t": "code",
+              "v": "**/*.test.tsx"
+            },
+            {
+              "t": "text",
+              "v": ", all "
+            },
+            {
+              "t": "code",
+              "v": "*.config.js"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Read"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Load full file contents"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Read a module before modifying it"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Write"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Write a whole file"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Create a new file; rewrite after Read"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Edit"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Targeted modification via "
+            },
+            {
+              "t": "strong",
+              "v": "unique text matching"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Replace one function body"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Bash"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Run shell commands"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Run tests, git operations"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The two classic confusions"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Grep vs Glob:"
+            },
+            {
+              "t": "text",
+              "v": " \"find files "
+            },
+            {
+              "t": "em",
+              "v": "named"
+            },
+            {
+              "t": "text",
+              "v": " X\" → Glob; \"find files "
+            },
+            {
+              "t": "em",
+              "v": "containing"
+            },
+            {
+              "t": "text",
+              "v": " X\" → Grep. Content vs path."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Edit failure fallback:"
+            },
+            {
+              "t": "text",
+              "v": " Edit requires the anchor text to be "
+            },
+            {
+              "t": "strong",
+              "v": "unique"
+            },
+            {
+              "t": "text",
+              "v": " in the file. When it isn't (repeated boilerplate, duplicated blocks), Edit fails → fall back to "
+            },
+            {
+              "t": "strong",
+              "v": "Read (full file) + Write (modified full file)"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Exploration strategy for unfamiliar codebases"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Build understanding "
+        },
+        {
+          "t": "strong",
+          "v": "incrementally"
+        },
+        {
+          "t": "text",
+          "v": ": Grep for entry points → Read to follow imports and trace flows. "
+        },
+        {
+          "t": "strong",
+          "v": "Do not read every file upfront"
+        },
+        {
+          "t": "text",
+          "v": " (burns context, dilutes attention)."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Wrapper-module tracing pattern"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "to trace usage of functions re-exported through wrapper modules — first identify "
+        },
+        {
+          "t": "strong",
+          "v": "all exported names"
+        },
+        {
+          "t": "text",
+          "v": ", then Grep for "
+        },
+        {
+          "t": "strong",
+          "v": "each name"
+        },
+        {
+          "t": "text",
+          "v": " across the codebase (searching only the original name misses aliased re-exports)."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 2: MCP Server Integration (Task Statement 2.4)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Configuration scoping"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Scope"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "File"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Shared?"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use for"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Project"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": ".mcp.json"
+            },
+            {
+              "t": "text",
+              "v": " (in repo)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "✅ via git"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Team-shared tooling (Jira, GitHub, internal APIs)"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "User"
+            }
+          ],
+          [
+            {
+              "t": "code",
+              "v": "~/.claude.json"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "❌"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Personal/experimental servers"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Both are active "
+        },
+        {
+          "t": "strong",
+          "v": "simultaneously"
+        },
+        {
+          "t": "text",
+          "v": " — tools from "
+        },
+        {
+          "t": "strong",
+          "v": "all configured servers are discovered at connection time"
+        },
+        {
+          "t": "text",
+          "v": " and available together."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Credentials without committing secrets"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "code",
+          "v": ".mcp.json"
+        },
+        {
+          "t": "text",
+          "v": " supports "
+        },
+        {
+          "t": "strong",
+          "v": "environment variable expansion"
+        },
+        {
+          "t": "text",
+          "v": ":"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "json",
+      "code": "{\n  \"mcpServers\": {\n    \"github\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n      \"env\": { \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\" }\n    }\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Each developer sets "
+        },
+        {
+          "t": "code",
+          "v": "GITHUB_TOKEN"
+        },
+        {
+          "t": "text",
+          "v": " locally; the config is safe to commit."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "MCP resources vs tools"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Tools"
+            },
+            {
+              "t": "text",
+              "v": " = actions the agent invokes."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Resources"
+            },
+            {
+              "t": "text",
+              "v": " = "
+            },
+            {
+              "t": "strong",
+              "v": "content catalogs"
+            },
+            {
+              "t": "text",
+              "v": " exposed to the agent — issue summaries, documentation hierarchies, database schemas. Purpose: give agents "
+            },
+            {
+              "t": "strong",
+              "v": "visibility into available data without exploratory tool calls"
+            },
+            {
+              "t": "text",
+              "v": " (the agent doesn't have to \"search around\" to learn what exists)."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Adoption problems and fixes"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Agent prefers built-in Grep over your capable MCP tool"
+            },
+            {
+              "t": "text",
+              "v": " → your MCP tool's "
+            },
+            {
+              "t": "strong",
+              "v": "description is too thin"
+            },
+            {
+              "t": "text",
+              "v": ". Enhance it to explain capabilities and outputs in detail. (Descriptions drive selection — same principle as Scenario 1.)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Community vs custom servers:"
+            },
+            {
+              "t": "text",
+              "v": " prefer "
+            },
+            {
+              "t": "strong",
+              "v": "existing community MCP servers for standard integrations"
+            },
+            {
+              "t": "text",
+              "v": " (e.g., Jira); build "
+            },
+            {
+              "t": "strong",
+              "v": "custom"
+            },
+            {
+              "t": "text",
+              "v": " servers only for team-specific workflows."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 3: Task Decomposition for Dev Workflows (Task Statement 1.6)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Two patterns — know when each applies:"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Pattern"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "When"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Example"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Fixed sequential pipeline (prompt chaining)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Predictable, multi-aspect work"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Code review: analyze each file individually → separate cross-file integration pass"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "strong",
+              "v": "Dynamic adaptive decomposition"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Open-ended investigation where each step's findings shape the next"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "\"Add comprehensive tests to this legacy codebase\""
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Legacy-testing decomposition (canonical example)"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "map the structure first → identify high-impact areas → create a "
+        },
+        {
+          "t": "strong",
+          "v": "prioritized plan that adapts"
+        },
+        {
+          "t": "text",
+          "v": " as dependencies are discovered. Not a fixed upfront file list."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Per-file + integration split rationale"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "analyzing many files at once dilutes attention (inconsistent depth, missed bugs, contradictory findings). Local pass per file + one dedicated cross-file data-flow pass."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 4: Session State, Resumption, Forking (Task Statement 1.7)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "--resume <session-name>"
+            },
+            {
+              "t": "text",
+              "v": " — continue a named investigation across work sessions."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "fork_session"
+            },
+            {
+              "t": "text",
+              "v": " — parallel exploration branches from a "
+            },
+            {
+              "t": "strong",
+              "v": "shared analysis baseline"
+            },
+            {
+              "t": "text",
+              "v": ": e.g., compare two testing strategies or two refactoring approaches without repeating the expensive codebase analysis."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Resume vs fresh:"
+            }
+          ],
+          "marker": "none",
+          "children": [
+            {
+              "spans": [
+                {
+                  "t": "text",
+                  "v": "Prior context mostly valid → resume; if specific files changed, "
+                },
+                {
+                  "t": "strong",
+                  "v": "inform the agent which files"
+                },
+                {
+                  "t": "text",
+                  "v": " for targeted re-analysis."
+                }
+              ],
+              "marker": "none",
+              "children": []
+            },
+            {
+              "spans": [
+                {
+                  "t": "text",
+                  "v": "Prior tool results stale (big refactor landed) → "
+                },
+                {
+                  "t": "strong",
+                  "v": "new session + structured summary injected"
+                },
+                {
+                  "t": "text",
+                  "v": ". Resuming over stale file contents produces unreliable reasoning."
+                }
+              ],
+              "marker": "none",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 5: Context Management in Large Codebases (Task Statement 5.4)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Symptoms of context degradation"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "In extended sessions the model starts giving "
+        },
+        {
+          "t": "strong",
+          "v": "inconsistent answers"
+        },
+        {
+          "t": "text",
+          "v": " and referencing "
+        },
+        {
+          "t": "strong",
+          "v": "\"typical patterns\""
+        },
+        {
+          "t": "text",
+          "v": " instead of the specific classes it discovered earlier. That's your cue to intervene."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The four countermeasures"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Subagent delegation"
+            },
+            {
+              "t": "text",
+              "v": " — spawn subagents for specific verbose questions (\"find all test files\", \"trace refund-flow dependencies\") while the main agent keeps high-level coordination. Verbose exploration output stays in the subagent's context."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Scratchpad files"
+            },
+            {
+              "t": "text",
+              "v": " — agents record key findings to files and reference them for later questions, surviving context boundaries."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Phase summarization"
+            },
+            {
+              "t": "text",
+              "v": " — summarize key findings from one exploration phase, then inject the summary into the initial context of the next phase's subagents."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "/compact"
+            },
+            {
+              "t": "text",
+              "v": " — reduce context usage when discovery output fills the window mid-session."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Crash recovery"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Design "
+        },
+        {
+          "t": "strong",
+          "v": "structured state persistence"
+        },
+        {
+          "t": "text",
+          "v": ": each agent "
+        },
+        {
+          "t": "strong",
+          "v": "exports state to a known location"
+        },
+        {
+          "t": "text",
+          "v": "; on resume the coordinator "
+        },
+        {
+          "t": "strong",
+          "v": "loads a manifest"
+        },
+        {
+          "t": "text",
+          "v": " and injects it into agent prompts. Work survives crashes without full re-exploration."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 6: Practice Questions"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "You need to find every file that "
+        },
+        {
+          "t": "em",
+          "v": "imports"
+        },
+        {
+          "t": "text",
+          "v": " "
+        },
+        {
+          "t": "code",
+          "v": "PaymentProcessor"
+        },
+        {
+          "t": "text",
+          "v": " anywhere in the repo. Which tool?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Glob with pattern "
+          },
+          {
+            "t": "code",
+            "v": "**/PaymentProcessor*"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Grep for "
+          },
+          {
+            "t": "code",
+            "v": "PaymentProcessor"
+          },
+          {
+            "t": "text",
+            "v": " across file contents"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Read on the PaymentProcessor file"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Bash "
+          },
+          {
+            "t": "code",
+            "v": "ls -R"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Imports live in file "
+        },
+        {
+          "t": "em",
+          "v": "contents"
+        },
+        {
+          "t": "text",
+          "v": " → Grep. Glob (A) matches file "
+        },
+        {
+          "t": "em",
+          "v": "names"
+        },
+        {
+          "t": "text",
+          "v": ", which would only find files named after the class."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Edit repeatedly fails on "
+        },
+        {
+          "t": "code",
+          "v": "config.ts"
+        },
+        {
+          "t": "text",
+          "v": " with \"text matches multiple locations\" — the file contains several identical settings blocks. Reliable approach?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Retry Edit with more surrounding context until unique — and if it still fails, keep retrying"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use Read to load the full file, then Write the modified version"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Use Bash with sed"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Split the file first so blocks become unique"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Read + Write is the documented fallback when Edit can't find unique anchor text. (Adding context can work, but the tested fallback pattern is Read+Write.)"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your team's Jira MCP server config with an API token needs to be shared with all 12 developers without committing secrets. How?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Commit "
+          },
+          {
+            "t": "code",
+            "v": ".mcp.json"
+          },
+          {
+            "t": "text",
+            "v": " with the token inside; the repo is private"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Each developer adds the server to "
+          },
+          {
+            "t": "code",
+            "v": "~/.claude.json"
+          },
+          {
+            "t": "text",
+            "v": " manually with their own token"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Commit "
+          },
+          {
+            "t": "code",
+            "v": ".mcp.json"
+          },
+          {
+            "t": "text",
+            "v": " using "
+          },
+          {
+            "t": "code",
+            "v": "${JIRA_TOKEN}"
+          },
+          {
+            "t": "text",
+            "v": " environment-variable expansion; developers set the variable locally"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Store the token in project CLAUDE.md"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Project-scoped "
+        },
+        {
+          "t": "code",
+          "v": ".mcp.json"
+        },
+        {
+          "t": "text",
+          "v": " shares the config via git; env-var expansion keeps credentials out of the repo. B loses the shared-config benefit; A and D commit secrets."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your custom MCP "
+        },
+        {
+          "t": "code",
+          "v": "code_search"
+        },
+        {
+          "t": "text",
+          "v": " tool is far more capable than Grep, but logs show the agent almost always uses Grep. First fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Remove Grep from allowedTools"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Enhance the MCP tool's description to explain its capabilities and outputs in detail"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Force the tool with tool_choice on every request"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Rename the tool to "
+          },
+          {
+            "t": "code",
+            "v": "grep_v2"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Descriptions drive selection; thin MCP descriptions lose to familiar built-ins. A removes a legitimately useful tool; C is heavy-handed for all requests; D doesn't add selection-relevant information."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Three hours into exploring a 500k-line legacy system, Claude starts describing the auth flow in generic terms instead of citing the actual classes it found earlier. Which response addresses the root cause?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Ask Claude to focus harder on the specific codebase"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Have Claude maintain a scratchpad file of key findings and reference it, and delegate verbose sub-investigations to subagents"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Restart and re-explore from scratch each session"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Paste the entire codebase into the first message"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Classic context degradation. Scratchpads persist findings across context boundaries; subagent delegation keeps verbose output out of the main context. C loses all work; D is impossible/counterproductive."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q6",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "After a shared baseline analysis of the codebase, you want to evaluate two competing refactoring strategies independently without re-analyzing. Mechanism?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "code",
+            "v": "--resume"
+          },
+          {
+            "t": "text",
+            "v": " the session twice in two terminals"
+          }
+        ],
+        [
+          {
+            "t": "code",
+            "v": "fork_session"
+          },
+          {
+            "t": "text",
+            "v": " to create two independent branches from the shared analysis baseline"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Two fresh sessions, each redoing the analysis"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "One session that alternates between both strategies"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "fork_session exists exactly for divergent exploration from a shared baseline. D contaminates the comparisons; C wastes the baseline work."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Key Takeaways Card"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Grep = contents; Glob = paths; Edit needs unique anchors, else Read+Write."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Explore incrementally (Grep entry points → Read/trace), never read-everything-upfront."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": ".mcp.json"
+            },
+            {
+              "t": "text",
+              "v": " = project/shared (+ "
+            },
+            {
+              "t": "code",
+              "v": "${ENV_VAR}"
+            },
+            {
+              "t": "text",
+              "v": " expansion); "
+            },
+            {
+              "t": "code",
+              "v": "~/.claude.json"
+            },
+            {
+              "t": "text",
+              "v": " = personal. All servers' tools available simultaneously."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "MCP resources = content catalogs → fewer exploratory calls. Thin descriptions → agent prefers built-ins."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Community servers for standard integrations; custom only for team-specific needs."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Prompt chaining for predictable reviews; adaptive decomposition for open-ended work."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Degradation symptoms (\"typical patterns\") → scratchpads, subagents, phase summaries, /compact."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Crash recovery = state manifests exported per agent, loaded by coordinator on resume."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Docs"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Claude Code MCP — "
+        },
+        {
+          "t": "link",
+          "v": "https://code.claude.com/docs",
+          "href": "https://code.claude.com/docs"
+        },
+        {
+          "t": "text",
+          "v": " (MCP section) · Agent SDK — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/api/agent-sdk/overview",
+          "href": "https://docs.claude.com/en/api/agent-sdk/overview"
+        }
+      ]
+    }
+  ]
+}

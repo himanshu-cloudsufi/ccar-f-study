@@ -1,0 +1,1796 @@
+{
+  "id": "s1",
+  "title": "Scenario 1: Customer Support Resolution Agent",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Context"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "You are building a customer support resolution agent with the "
+        },
+        {
+          "t": "strong",
+          "v": "Claude Agent SDK"
+        },
+        {
+          "t": "text",
+          "v": ". It handles high-ambiguity requests (returns, billing disputes, account issues) via custom MCP tools: "
+        },
+        {
+          "t": "code",
+          "v": "get_customer"
+        },
+        {
+          "t": "text",
+          "v": ", "
+        },
+        {
+          "t": "code",
+          "v": "lookup_order"
+        },
+        {
+          "t": "text",
+          "v": ", "
+        },
+        {
+          "t": "code",
+          "v": "process_refund"
+        },
+        {
+          "t": "text",
+          "v": ", "
+        },
+        {
+          "t": "code",
+          "v": "escalate_to_human"
+        },
+        {
+          "t": "text",
+          "v": ". Target: "
+        },
+        {
+          "t": "strong",
+          "v": "80%+ first-contact resolution"
+        },
+        {
+          "t": "text",
+          "v": " while knowing when to escalate."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Primary domains"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Agentic Architecture & Orchestration (D1) · Tool Design & MCP Integration (D2) · Context Management & Reliability (D5)"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 1: The Agentic Loop (Task Statement 1.1)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "How the loop works"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Send the request (with tools defined) to Claude via the API."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Inspect "
+            },
+            {
+              "t": "code",
+              "v": "stop_reason"
+            },
+            {
+              "t": "text",
+              "v": " in the response:"
+            }
+          ],
+          "marker": "none",
+          "children": [
+            {
+              "spans": [
+                {
+                  "t": "code",
+                  "v": "\"tool_use\""
+                },
+                {
+                  "t": "text",
+                  "v": " → Claude wants to call a tool. Execute the requested tool, append the "
+                },
+                {
+                  "t": "strong",
+                  "v": "tool result"
+                },
+                {
+                  "t": "text",
+                  "v": " to the conversation history, and send the next request."
+                }
+              ],
+              "marker": "none",
+              "children": []
+            },
+            {
+              "spans": [
+                {
+                  "t": "code",
+                  "v": "\"end_turn\""
+                },
+                {
+                  "t": "text",
+                  "v": " → Claude is done. Present the final response to the user."
+                }
+              ],
+              "marker": "none",
+              "children": []
+            }
+          ]
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Repeat until "
+            },
+            {
+              "t": "code",
+              "v": "end_turn"
+            },
+            {
+              "t": "text",
+              "v": "."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "python",
+      "code": "messages = [{\"role\": \"user\", \"content\": user_request}]\nwhile True:\n    resp = client.messages.create(model=MODEL, tools=TOOLS, messages=messages, max_tokens=4096)\n    messages.append({\"role\": \"assistant\", \"content\": resp.content})\n    if resp.stop_reason == \"end_turn\":\n        break  # final answer ready\n    if resp.stop_reason == \"tool_use\":\n        results = [execute(block) for block in resp.content if block.type == \"tool_use\"]\n        messages.append({\"role\": \"user\", \"content\": results})  # tool_result blocks"
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Why tool results go back into history"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "the model reasons about its "
+        },
+        {
+          "t": "em",
+          "v": "next"
+        },
+        {
+          "t": "text",
+          "v": " action based on what previous tools returned. Without appending results, every iteration starts blind."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Model-driven vs pre-configured decisions"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "the exam favors letting Claude decide which tool to call next based on context (model-driven), rather than hard-coded decision trees or fixed tool sequences — "
+        },
+        {
+          "t": "em",
+          "v": "except"
+        },
+        {
+          "t": "text",
+          "v": " where compliance must be guaranteed (see hooks below)."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Anti-patterns (frequent wrong answers)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Parsing natural-language signals (\"It looks like I'm done\") to decide loop termination"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Arbitrary iteration caps as the "
+            },
+            {
+              "t": "strong",
+              "v": "primary"
+            },
+            {
+              "t": "text",
+              "v": " stopping mechanism"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Checking whether the assistant returned text content as a \"completion\" indicator"
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "The "
+            },
+            {
+              "t": "strong",
+              "v": "only"
+            },
+            {
+              "t": "text",
+              "v": " correct termination signal is "
+            },
+            {
+              "t": "code",
+              "v": "stop_reason == \"end_turn\""
+            }
+          ],
+          "marker": "do",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 2: Enforcement, Hooks, and Workflow Ordering (Task Statements 1.4, 1.5)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "The core exam principle"
+        }
+      ]
+    },
+    {
+      "type": "callout",
+      "variant": "principle",
+      "spans": [
+        {
+          "t": "text",
+          "v": "When deterministic compliance is required (e.g., identity verification before financial operations), prompt instructions alone have a "
+        },
+        {
+          "t": "strong",
+          "v": "non-zero failure rate"
+        },
+        {
+          "t": "text",
+          "v": ". Use "
+        },
+        {
+          "t": "strong",
+          "v": "programmatic enforcement"
+        },
+        {
+          "t": "text",
+          "v": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Two enforcement mechanisms in the Agent SDK:"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "strong",
+          "v": "1. Programmatic prerequisites (gates)"
+        },
+        {
+          "t": "text",
+          "v": " Block downstream tool calls until prerequisites complete. Example: block "
+        },
+        {
+          "t": "code",
+          "v": "lookup_order"
+        },
+        {
+          "t": "text",
+          "v": " and "
+        },
+        {
+          "t": "code",
+          "v": "process_refund"
+        },
+        {
+          "t": "text",
+          "v": " until "
+        },
+        {
+          "t": "code",
+          "v": "get_customer"
+        },
+        {
+          "t": "text",
+          "v": " has returned a "
+        },
+        {
+          "t": "em",
+          "v": "verified customer ID"
+        },
+        {
+          "t": "text",
+          "v": ". This is deterministic — it cannot be \"forgotten\" the way a prompt instruction can."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "strong",
+          "v": "2. Hooks"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "PostToolUse hooks"
+            },
+            {
+              "t": "text",
+              "v": " intercept "
+            },
+            {
+              "t": "em",
+              "v": "tool results"
+            },
+            {
+              "t": "text",
+              "v": " before the model sees them. Use case: "
+            },
+            {
+              "t": "strong",
+              "v": "data normalization"
+            },
+            {
+              "t": "text",
+              "v": " — your MCP tools return heterogeneous formats (Unix timestamps vs ISO 8601, numeric vs string status codes). A PostToolUse hook normalizes them so the agent reasons over consistent data."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Tool-call interception hooks"
+            },
+            {
+              "t": "text",
+              "v": " intercept "
+            },
+            {
+              "t": "em",
+              "v": "outgoing tool calls"
+            },
+            {
+              "t": "text",
+              "v": " to enforce compliance rules. Use case: block "
+            },
+            {
+              "t": "code",
+              "v": "process_refund"
+            },
+            {
+              "t": "text",
+              "v": " for amounts "
+            },
+            {
+              "t": "strong",
+              "v": "over $500"
+            },
+            {
+              "t": "text",
+              "v": " and redirect to the human-escalation workflow."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Decision rule for the exam"
+        }
+      ],
+      "spans": []
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Situation"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Mechanism"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "text",
+              "v": "Business rule with financial/legal consequences must ALWAYS hold"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Hook / programmatic gate"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Stylistic guidance, tone, general behavior shaping"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Prompt instructions"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Improving judgment on ambiguous cases"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Few-shot examples"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Multi-concern requests"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "A customer message may contain several issues (\"my order arrived damaged AND I was double-charged\"). Correct pattern: "
+        },
+        {
+          "t": "strong",
+          "v": "decompose into distinct items → investigate each in parallel using shared context → synthesize a unified resolution"
+        },
+        {
+          "t": "text",
+          "v": ". Don't handle only the first issue or force the customer to re-ask."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Structured handoff protocol"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "When escalating mid-process, the human agent typically "
+        },
+        {
+          "t": "strong",
+          "v": "cannot see the conversation transcript"
+        },
+        {
+          "t": "text",
+          "v": ". Compile a structured handoff summary:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Customer ID (verified)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Root cause analysis"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Refund amount / financial exposure"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Recommended action"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 3: Tool Design for Support Tools (Task Statements 2.1, 2.2)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Tool descriptions are THE selection mechanism"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "LLMs choose tools based primarily on their "
+        },
+        {
+          "t": "strong",
+          "v": "descriptions"
+        },
+        {
+          "t": "text",
+          "v": ". Minimal descriptions (\"Retrieves customer information\" vs \"Retrieves order details\") cause misrouting between similar tools. A good description includes:"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Purpose, clearly differentiated from similar tools"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Input formats it accepts (e.g., \"accepts order IDs of the form ORD-XXXXX\")"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Example queries it should handle"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Edge cases and boundaries (\"Use lookup_order for order status/details; use get_customer for account-level information\")"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Exam trap"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "when tool selection fails, the "
+        },
+        {
+          "t": "em",
+          "v": "first step"
+        },
+        {
+          "t": "text",
+          "v": " is enriching descriptions — not few-shot examples (token overhead, doesn't fix root cause), not a keyword-routing layer (over-engineered, bypasses the LLM), not consolidating tools (bigger change than a first step warrants)."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Also review the "
+        },
+        {
+          "t": "strong",
+          "v": "system prompt"
+        },
+        {
+          "t": "text",
+          "v": " for keyword-sensitive instructions that can override good descriptions and create unintended tool associations."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Structured error responses (MCP "
+        },
+        {
+          "t": "code",
+          "v": "isError"
+        },
+        {
+          "t": "text",
+          "v": " pattern)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Generic errors (\"Operation failed\") leave the agent unable to choose a recovery path. Return structured metadata:"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "json",
+      "code": "{\n  \"isError\": true,\n  \"errorCategory\": \"business\",        // transient | validation | business | permission\n  \"isRetryable\": false,\n  \"message\": \"Refunds over $500 require supervisor approval.\",\n  \"customerFacingExplanation\": \"This refund needs a quick supervisor review — I'm escalating it now.\"\n}"
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Error taxonomy to memorize:"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [
+          {
+            "t": "text",
+            "v": "Category"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Example"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Retryable?"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Agent's correct move"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          [
+            {
+              "t": "text",
+              "v": "Transient"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "timeout, service unavailable"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Yes"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Retry (possibly with backoff)"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Validation"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "malformed order ID"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "No (as-is)"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Fix input, then retry"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Business"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "refund > policy limit"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "No"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Explain to customer / escalate"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "t": "text",
+              "v": "Permission"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "agent lacks access"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "No"
+            }
+          ],
+          [
+            {
+              "t": "text",
+              "v": "Escalate"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Also distinguish "
+        },
+        {
+          "t": "strong",
+          "v": "access failures"
+        },
+        {
+          "t": "text",
+          "v": " (couldn't query — retry decision needed) from "
+        },
+        {
+          "t": "strong",
+          "v": "valid empty results"
+        },
+        {
+          "t": "text",
+          "v": " (query succeeded, zero matches — a legitimate answer, not an error)."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 4: Context Management for Long Support Sessions (Task Statement 5.1)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Progressive summarization risk"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "As conversations grow, naive summarization condenses "
+        },
+        {
+          "t": "strong",
+          "v": "numerical values, percentages, dates, and customer-stated expectations"
+        },
+        {
+          "t": "text",
+          "v": " into vague prose (\"customer wants a refund\" loses \"$127.43 refund for order ORD-88231 promised by Friday\")."
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Fix — the \"case facts\" block"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "extract transactional facts (amounts, dates, order numbers, statuses) into a persistent structured block included "
+        },
+        {
+          "t": "strong",
+          "v": "in every prompt, outside the summarized history"
+        },
+        {
+          "t": "text",
+          "v": ". For multi-issue sessions, persist structured per-issue data (order IDs, amounts, statuses) in a separate context layer."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Tool output bloat"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "An order lookup may return 40+ fields when only ~5 matter for a return. "
+        },
+        {
+          "t": "strong",
+          "v": "Trim verbose tool outputs to relevant fields before they accumulate in context"
+        },
+        {
+          "t": "text",
+          "v": " (this is exactly what a PostToolUse hook can do)."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Lost-in-the-middle"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "Models reliably attend to the "
+        },
+        {
+          "t": "strong",
+          "v": "beginning and end"
+        },
+        {
+          "t": "text",
+          "v": " of long inputs; middle content gets dropped. Place key-findings summaries at the top of aggregated inputs and use explicit section headers."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 5: Escalation & Ambiguity Resolution (Task Statement 5.2)"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Correct escalation triggers"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Customer explicitly requests a human"
+            },
+            {
+              "t": "text",
+              "v": " → escalate "
+            },
+            {
+              "t": "strong",
+              "v": "immediately"
+            },
+            {
+              "t": "text",
+              "v": ", without first attempting investigation. (Exception nuance: if the customer is merely "
+            },
+            {
+              "t": "em",
+              "v": "frustrated"
+            },
+            {
+              "t": "text",
+              "v": " but the issue is clearly within the agent's capability, acknowledge frustration + offer to resolve, and escalate if they reiterate.)"
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Policy gaps/exceptions"
+            },
+            {
+              "t": "text",
+              "v": " — the policy is silent or ambiguous on the request (e.g., competitor price matching when policy covers only own-site adjustments) → escalate. Complexity alone is not the trigger; "
+            },
+            {
+              "t": "em",
+              "v": "policy ambiguity"
+            },
+            {
+              "t": "text",
+              "v": " is."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Inability to make meaningful progress."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Unreliable escalation signals (classic wrong answers)"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Self-reported confidence scores"
+            },
+            {
+              "t": "text",
+              "v": " — LLM confidence is poorly calibrated; the agent is precisely "
+            },
+            {
+              "t": "em",
+              "v": "most"
+            },
+            {
+              "t": "text",
+              "v": " miscalibrated on the hard cases."
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Sentiment analysis"
+            },
+            {
+              "t": "text",
+              "v": " — frustration ≠ complexity. Angry customers often have simple problems."
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Separate ML classifiers"
+            },
+            {
+              "t": "text",
+              "v": " — over-engineered before prompt-level fixes are tried."
+            }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "strong",
+              "v": "Explicit escalation criteria + few-shot examples"
+            },
+            {
+              "t": "text",
+              "v": " in the system prompt demonstrating escalate-vs-resolve decisions."
+            }
+          ],
+          "marker": "do",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Multiple customer matches"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        {
+          "t": "text",
+          "v": "If "
+        },
+        {
+          "t": "code",
+          "v": "get_customer"
+        },
+        {
+          "t": "text",
+          "v": " returns several matches, "
+        },
+        {
+          "t": "strong",
+          "v": "ask the customer for additional identifiers"
+        },
+        {
+          "t": "text",
+          "v": " — never pick heuristically (most recent account, closest name match, etc.)."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Part 6: Practice Questions"
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your agent processes a $50 refund for the wrong customer because it matched by name only. Logs show "
+        },
+        {
+          "t": "code",
+          "v": "get_customer"
+        },
+        {
+          "t": "text",
+          "v": " was skipped in 12% of refund flows despite the system prompt saying verification is \"mandatory.\" Best fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Strengthen the prompt with capitalized MANDATORY language"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Add a programmatic prerequisite blocking "
+          },
+          {
+            "t": "code",
+            "v": "process_refund"
+          },
+          {
+            "t": "text",
+            "v": " until "
+          },
+          {
+            "t": "code",
+            "v": "get_customer"
+          },
+          {
+            "t": "text",
+            "v": " returns a verified ID"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Add 8 few-shot examples of correct verification flows"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Lower temperature to make the model more deterministic"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Financial operations require deterministic guarantees. A and C are probabilistic (non-zero failure rate). D doesn't address tool-ordering behavior at all."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your "
+        },
+        {
+          "t": "code",
+          "v": "process_refund"
+        },
+        {
+          "t": "text",
+          "v": " MCP tool returns "
+        },
+        {
+          "t": "code",
+          "v": "\"Error: operation failed\""
+        },
+        {
+          "t": "text",
+          "v": " for every failure — network timeouts, refunds over policy limits, and invalid order IDs alike. The agent responds by retrying everything three times. What should the tool return instead?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "HTTP status codes mapped into the message string"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Structured metadata: "
+          },
+          {
+            "t": "code",
+            "v": "errorCategory"
+          },
+          {
+            "t": "text",
+            "v": ", "
+          },
+          {
+            "t": "code",
+            "v": "isRetryable"
+          },
+          {
+            "t": "text",
+            "v": ", and a human-readable description per failure type"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Nothing — suppress errors and return an empty success so the agent moves on"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "A stack trace so the agent can diagnose the failure"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Structured categories let the agent retry transients, fix validation input, and escalate business/permission errors instead of blindly retrying. C silently suppresses failures (anti-pattern). A and D don't give decision-relevant structure."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "In hour-long multi-issue sessions, your agent starts quoting wrong refund amounts and mixing up order numbers between the customer's three issues. Root-cause fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Increase max_tokens on every request"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Summarize the conversation more aggressively every 10 turns"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Extract structured per-issue facts (order IDs, amounts, statuses) into a persistent case-facts block included in each prompt outside the summarized history"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Ask the customer to restate details when confusion occurs"
+          }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Progressive summarization is what "
+        },
+        {
+          "t": "em",
+          "v": "destroys"
+        },
+        {
+          "t": "text",
+          "v": " precise transactional facts — B makes it worse. A doesn't stop fact-drift. D degrades customer experience without fixing the system."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "A customer writes: \"This is ridiculous, I've been overcharged AGAIN. Just fix it.\" The overcharge is a standard duplicate-billing case fully within policy. The agent should:"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Escalate immediately due to negative sentiment"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Acknowledge the frustration and offer to resolve it now, escalating only if the customer asks for a human"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Ask the customer to rate their frustration 1–10 to decide routing"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Self-report a confidence score and escalate if below 7"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "Sentiment isn't complexity; the issue is within capability. Escalate immediately only on an "
+        },
+        {
+          "t": "em",
+          "v": "explicit"
+        },
+        {
+          "t": "text",
+          "v": " human request or a policy gap. C and D use unreliable proxies."
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        {
+          "t": "text",
+          "v": "Your MCP tools return timestamps as Unix epochs from the billing system and ISO 8601 from the order system, and the agent occasionally mis-compares dates. Cleanest fix?"
+        }
+      ],
+      "options": [
+        [
+          {
+            "t": "text",
+            "v": "Add a prompt instruction explaining both date formats"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "A PostToolUse hook that normalizes all timestamps to one format before the model processes results"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Rewrite both backend systems to use one format"
+          }
+        ],
+        [
+          {
+            "t": "text",
+            "v": "Have the agent call a "
+          },
+          {
+            "t": "code",
+            "v": "convert_date"
+          },
+          {
+            "t": "text",
+            "v": " tool whenever it sees a date"
+          }
+        ]
+      ],
+      "answer": 1,
+      "explanation": [
+        {
+          "t": "text",
+          "v": "PostToolUse hooks exist precisely to normalize heterogeneous tool results deterministically. A is probabilistic; C is out of scope/over-engineered; D adds latency and relies on the model remembering to do it."
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        {
+          "t": "text",
+          "v": "Key Takeaways Card"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            {
+              "t": "code",
+              "v": "stop_reason"
+            },
+            {
+              "t": "text",
+              "v": " is the only loop-termination signal: "
+            },
+            {
+              "t": "code",
+              "v": "tool_use"
+            },
+            {
+              "t": "text",
+              "v": " → execute & continue; "
+            },
+            {
+              "t": "code",
+              "v": "end_turn"
+            },
+            {
+              "t": "text",
+              "v": " → stop."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Hooks/gates for guarantees; prompts for guidance; few-shot for judgment."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Refund > threshold → intercept and redirect to escalation."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Tool descriptions first when selection misfires."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Errors: category + isRetryable + description; empty result ≠ error."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Case-facts block beats summarization for transactional data."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Escalate on: explicit human request (immediately), policy gaps, no progress. Never on sentiment or self-confidence."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            {
+              "t": "text",
+              "v": "Multiple matches → ask for identifiers."
+            }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        {
+          "t": "text",
+          "v": "Docs"
+        }
+      ],
+      "spans": [
+        {
+          "t": "text",
+          "v": "Agent SDK — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/api/agent-sdk/overview",
+          "href": "https://docs.claude.com/en/api/agent-sdk/overview"
+        },
+        {
+          "t": "text",
+          "v": " · Tool use — "
+        },
+        {
+          "t": "link",
+          "v": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+          "href": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+        },
+        {
+          "t": "text",
+          "v": " · MCP — "
+        },
+        {
+          "t": "link",
+          "v": "https://modelcontextprotocol.io",
+          "href": "https://modelcontextprotocol.io"
+        }
+      ]
+    }
+  ]
+}

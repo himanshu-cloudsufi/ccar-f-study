@@ -19,7 +19,9 @@ Node 20+ and npm. No env vars, no backend, no accounts — open it and start stu
 
 ### Learn
 
-Eight guides in a sidebar, rendered as Markdown. Read **Overview & Study Plan** first (logistics, domain weights, and the ten cross-cutting answer patterns), then **Official Exam Guide** (the authoritative domain/task breakdown, sample questions, and four preparation exercises), then the six scenario guides. Each scenario guide is self-contained and ends with practice questions.
+Eight guides in a sidebar, rendered from structured block documents (see [Content pipeline](#content-pipeline)) — tables, code samples, do/don't lists, exam-principle callouts, and self-checking practice questions each get their own component rather than one generic Markdown pass. Level-2 headings feed an "on this page" outline.
+
+Read **Overview & Study Plan** first — it is a short strategy index: the ten cross-cutting answer patterns, a 3-week plan, and the docs links. Then **Official Exam Guide**, the authoritative source for logistics, domain weights, the 31 task statements, sample questions, preparation exercises, and the out-of-scope list. Then the six scenario guides, each self-contained and ending with practice questions.
 
 ### Test
 
@@ -89,24 +91,45 @@ Add items to `src/data/imported-questions.json` — a flat JSON array. `src/data
 
 ```
 src/
-  App.tsx                      shell, Learn/Test/Cards tabs, Markdown guide reader
+  App.tsx                      shell, Learn/Test/Cards tabs, guide reader
   TestView.tsx                 test engine: draws, timer, navigator, scoring, review
   CardsView.tsx                flashcard drill: deck picker, queue, hit/miss stats
-  content/
+  content/                     authoring source (Markdown)
     00-CCAR-F-Overview-and-Study-Plan.md
     01…06-<scenario>.md          six scenario deep-dives
     07-Official-Exam-Guide.md
+    blocks/*.json              generated block documents — what the app imports
+  components/
+    GuideRenderer.tsx          block/span renderer + on-this-page outline
   data/
-    guides.ts                  imports the Markdown as ?raw, sets titles/tags
+    guides.ts                  imports the block JSON, sets titles/tags
     questions.ts               Question type + 36 handwritten items, merged with:
     imported-questions.json    186 community/official items — edit this to add questions
     flashcards.ts              flashcard deck
   lib/
+    blocks.ts                  Block/Span/GuideDoc types
     history.ts                 localStorage attempts + mistakes pool
     utils.ts                   cn()
   components/ui/               shadcn primitives
   index.css                    Tailwind v4 theme
 public/                        favicon, icons
+scripts/
+  validate-guide-json.py       checks the block JSON against its Markdown source
 ```
 
-Stack: Vite 8, React 19, TypeScript, Tailwind v4, shadcn/ui (Radix), react-markdown. `@/` resolves to `src/`.
+Stack: Vite 8, React 19, TypeScript, Tailwind v4, shadcn/ui (Radix). No Markdown runtime — guides ship as JSON. `@/` resolves to `src/`.
+
+## Content pipeline
+
+`src/content/*.md` is the authoring source. The app does **not** render it. Each guide is converted once into a block document under `src/content/blocks/*.json` and rendered by `src/components/GuideRenderer.tsx`, which maps each block type to a real component.
+
+Block types: `heading`, `paragraph`, `definition` (a `**Label:** body` pair), `callout` (`principle` / `note`), `list` (nestable, with `do` / `dont` markers replacing ❌ / ✅ bullets), `table`, `code`, `divider`, and `quiz` — the `**Qn.**` practice questions, which render as click-to-check questions with per-option feedback instead of an answer key sitting in plain sight. Inline text is a flat span array (`text` / `strong` / `em` / `code` / `link`), so there is no Markdown parsing at runtime. See `src/lib/blocks.ts` for the types.
+
+**After editing a guide's Markdown, regenerate its JSON and verify it:**
+
+```bash
+python3 scripts/validate-guide-json.py                  # all guides
+python3 scripts/validate-guide-json.py 05-Claude-Code-for-CI-CD   # just one
+```
+
+The validator is the guard against the two failure modes of a conversion like this. It checks the schema (block and span shapes, table arity, quiz answer range, no leftover `**` or backticks in span text) and then diffs every word of prose in the Markdown against every word in the JSON — reporting `LOST from markdown` for dropped runs and `INVENTED in json` for added ones. It also requires code blocks to match byte-for-byte and the table and question counts to agree. A guide that passes is a faithful conversion, not a paraphrase.

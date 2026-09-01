@@ -1,0 +1,766 @@
+{
+  "id": "s5",
+  "title": "Scenario 5: Claude Code for Continuous Integration",
+  "subtitle": "CCAR-F Deep-Dive Study Guide",
+  "blocks": [
+    {
+      "type": "definition",
+      "term": [
+        { "t": "strong", "v": "Context" }
+      ],
+      "spans": [
+        { "t": "text", "v": "You integrate " },
+        { "t": "strong", "v": "Claude Code" },
+        { "t": "text", "v": " into a CI/CD pipeline: automated code reviews, test generation, PR feedback. Goals: actionable feedback, minimal false positives." }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        { "t": "strong", "v": "Primary domains" }
+      ],
+      "spans": [
+        { "t": "text", "v": "Claude Code Configuration & Workflows (D3) · Prompt Engineering & Structured Output (D4)" }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 1: Running Claude Code Headless (Task Statement 3.6)" }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "The flags (memorize exactly — fake flags are distractors)" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "code", "v": "-p" },
+            { "t": "text", "v": " / " },
+            { "t": "code", "v": "--print" },
+            { "t": "text", "v": " — non-interactive mode. Processes the prompt, prints to stdout, exits. Without it, Claude Code waits for interactive input and " },
+            { "t": "strong", "v": "the CI job hangs indefinitely" },
+            { "t": "text", "v": " (sample Q10)." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "code", "v": "--output-format json" },
+            { "t": "text", "v": " — machine-parseable output." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "code", "v": "--json-schema" },
+            { "t": "text", "v": " — enforce a specific structure on that JSON output, e.g., so findings can be posted as " },
+            { "t": "strong", "v": "inline PR comments" },
+            { "t": "text", "v": " automatically." }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "lang": "bash",
+      "code": "claude -p \"Review the diff for security issues\" \\\n  --output-format json \\\n  --json-schema review-findings.schema.json\n"
+    },
+    {
+      "type": "definition",
+      "term": [
+        { "t": "strong", "v": "Known fake options used as distractors" }
+      ],
+      "spans": [
+        { "t": "code", "v": "CLAUDE_HEADLESS=true" },
+        { "t": "text", "v": ", " },
+        { "t": "code", "v": "--batch" },
+        { "t": "text", "v": " flag, stdin redirection from /dev/null. None are the documented mechanism." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Giving CI-invoked Claude project context" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "strong", "v": "CLAUDE.md" },
+        { "t": "text", "v": " is the mechanism: document testing standards, fixture conventions, review criteria, and what makes a test valuable. Effects:" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "text", "v": "Better review relevance" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Higher-quality test generation, less low-value test output" }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Avoiding duplicate noise across runs" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "Re-reviews after new commits:" },
+            { "t": "text", "v": " include " },
+            { "t": "strong", "v": "prior review findings in context" },
+            { "t": "text", "v": " and instruct Claude to report " },
+            { "t": "strong", "v": "only new or still-unaddressed issues" },
+            { "t": "text", "v": " — prevents duplicate PR comments." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Test generation:" },
+            { "t": "text", "v": " include " },
+            { "t": "strong", "v": "existing test files in context" },
+            { "t": "text", "v": " so Claude doesn't propose scenarios already covered." }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 2: Precision Prompting to Reduce False Positives (Task Statement 4.1)" }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Explicit criteria beat vague instructions" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "text", "v": "\"Check that comments are accurate\" / \"be conservative\" / \"only report high-confidence findings\" — these " },
+            { "t": "strong", "v": "do not improve precision" },
+            { "t": "text", "v": "." }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "\"Flag comments " },
+            { "t": "strong", "v": "only when the claimed behavior contradicts the actual code behavior" },
+            { "t": "text", "v": ".\"" }
+          ],
+          "marker": "do",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Define " },
+            { "t": "em", "v": "which categories" },
+            { "t": "text", "v": " to report (bugs, security) vs " },
+            { "t": "em", "v": "skip" },
+            { "t": "text", "v": " (minor style, local patterns) — " },
+            { "t": "strong", "v": "categorical criteria, not confidence-based filtering" },
+            { "t": "text", "v": "." }
+          ],
+          "marker": "do",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Trust dynamics" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "High false-positive rates in one category " },
+        { "t": "strong", "v": "undermine developer trust in the accurate categories too" },
+        { "t": "text", "v": ". Tactical fix while you improve prompts: " },
+        { "t": "strong", "v": "temporarily disable the high-FP categories" },
+        { "t": "text", "v": " to restore trust." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Severity consistency" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Define " },
+        { "t": "strong", "v": "explicit severity criteria with concrete code examples per level" },
+        { "t": "text", "v": " — that's what produces consistent severity classification." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 3: Few-Shot Prompting (Task Statement 4.2)" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "When detailed instructions alone still yield inconsistent output, " },
+        { "t": "strong", "v": "few-shot examples are the most effective technique" },
+        { "t": "text", "v": " for:" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "Format consistency" },
+            { "t": "text", "v": " — demonstrate the exact output shape: location, issue, severity, suggested fix." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "Ambiguous-case judgment" },
+            { "t": "text", "v": " — 2–4 targeted examples showing the " },
+            { "t": "em", "v": "reasoning" },
+            { "t": "text", "v": " for why one action beat plausible alternatives (e.g., branch-level coverage-gap decisions)." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "False-positive reduction" },
+            { "t": "text", "v": " — examples distinguishing " },
+            { "t": "em", "v": "acceptable patterns" },
+            { "t": "text", "v": " from " },
+            { "t": "em", "v": "genuine issues" },
+            { "t": "text", "v": ", enabling generalization to novel patterns (not just matching pre-listed cases)." }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Rule of thumb: " },
+        { "t": "strong", "v": "2–4 targeted examples aimed at the ambiguous boundary" },
+        { "t": "text", "v": ", not dozens of easy cases." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Feedback loops" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Add a " },
+        { "t": "code", "v": "detected_pattern" },
+        { "t": "text", "v": " field to structured findings. When developers dismiss findings, you can systematically analyze " },
+        { "t": "em", "v": "which code constructs" },
+        { "t": "text", "v": " trigger false positives and fix the prompt for those patterns." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 4: Multi-Instance and Multi-Pass Review (Task Statement 4.6)" }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Self-review limitation" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "A model that just generated code " },
+        { "t": "strong", "v": "retains its reasoning context" },
+        { "t": "text", "v": " and is unlikely to question its own decisions in the same session. Neither \"review your own work carefully\" instructions nor extended thinking fixes this." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "✅ " },
+        { "t": "strong", "v": "Independent review instance" },
+        { "t": "text", "v": ": a second Claude instance " },
+        { "t": "strong", "v": "without the generator's reasoning context" },
+        { "t": "text", "v": " catches subtle issues far better. Same applies to CI: the session that generated the code should not be the session that reviews it (" },
+        { "t": "strong", "v": "session context isolation" },
+        { "t": "text", "v": ")." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Multi-pass review (sample Q12)" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Single-pass review of a 14-file PR → " },
+        { "t": "strong", "v": "attention dilution" },
+        { "t": "text", "v": ": inconsistent depth, missed obvious bugs, contradictory findings (flagging a pattern in one file, approving identical code in another)." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "✅ Restructure: " },
+        { "t": "strong", "v": "per-file passes for local issues + a separate integration pass for cross-file data flow." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Distractor knowledge:" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "text", "v": "Larger context window — doesn't fix attention " },
+            { "t": "em", "v": "quality" }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Forcing developers to split PRs — shifts burden, doesn't fix the system" }
+          ],
+          "marker": "dont",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Consensus voting across 3 runs — suppresses real bugs that are only caught intermittently" }
+          ],
+          "marker": "dont",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Optional add-on: verification passes where the model " },
+        { "t": "strong", "v": "self-reports confidence per finding" },
+        { "t": "text", "v": " — used for " },
+        { "t": "em", "v": "calibrated review routing" },
+        { "t": "text", "v": ", not as an escalation trigger." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 5: Batch vs Real-Time API (Task Statement 4.5)" }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Message Batches API facts (memorize)" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "strong", "v": "50% cost savings" },
+            { "t": "text", "v": " vs synchronous API" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Processing window " },
+            { "t": "strong", "v": "up to 24 hours" },
+            { "t": "text", "v": ", " },
+            { "t": "strong", "v": "no guaranteed latency SLA" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "code", "v": "custom_id" },
+            { "t": "text", "v": " correlates request/response pairs (results are not order-dependent — retrievable by ID)" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "strong", "v": "No multi-turn tool calling within a single batch request" },
+            { "t": "text", "v": " (can't execute tools mid-request and return results)" }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "The decision rule (sample Q11)" }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [ { "t": "text", "v": "Workflow" } ],
+        [ { "t": "text", "v": "API" } ]
+      ],
+      "rows": [
+        [
+          [ { "t": "text", "v": "Blocking pre-merge check (developer waits)" } ],
+          [ { "t": "strong", "v": "Synchronous" } ]
+        ],
+        [
+          [ { "t": "text", "v": "Overnight technical-debt report" } ],
+          [ { "t": "strong", "v": "Batch" } ]
+        ],
+        [
+          [ { "t": "text", "v": "Weekly audits, nightly test generation" } ],
+          [ { "t": "strong", "v": "Batch" } ]
+        ],
+        [
+          [ { "t": "text", "v": "Anything with a human or pipeline blocked on the result" } ],
+          [ { "t": "strong", "v": "Synchronous" } ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "\"Batches often finish faster than 24h\" is " },
+        { "t": "strong", "v": "not" },
+        { "t": "text", "v": " an acceptable basis for a blocking workflow. Hybrid timeout-fallback designs are flagged as unnecessary complexity." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "SLA math pattern" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "If batch processing can take up to 24h and you must guarantee results within an N-hour SLA, submit batches every " },
+        { "t": "strong", "v": "N − 24" },
+        { "t": "text", "v": " hours. Example from the guide: " },
+        { "t": "strong", "v": "30-hour SLA → submit every 4 hours" },
+        { "t": "text", "v": " (any document waits ≤ 4h to be submitted + ≤ 24h processing ≤ 28h... the guide's arithmetic: 4h submission window + 24h processing ≤ 30h with margin). Practice: given SLA and 24h window, submission interval ≤ SLA − 24h." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "spans": [
+        { "t": "text", "v": "Failure handling" }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Resubmit " },
+        { "t": "strong", "v": "only failed requests" },
+        { "t": "text", "v": " (identified via " },
+        { "t": "code", "v": "custom_id" },
+        { "t": "text", "v": "), with modifications — e.g., " },
+        { "t": "strong", "v": "chunking documents that exceeded context limits" },
+        { "t": "text", "v": ". And refine prompts on a " },
+        { "t": "strong", "v": "sample set first" },
+        { "t": "text", "v": " before batch-running large volumes, to maximize first-pass success." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Part 6: Practice Questions" }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q1",
+      "prompt": [
+        { "t": "text", "v": "Your GitHub Action step " },
+        { "t": "code", "v": "claude \"Generate tests for changed files\"" },
+        { "t": "text", "v": " never completes. Fix?" }
+      ],
+      "options": [
+        [ { "t": "code", "v": "claude --batch \"Generate tests for changed files\"" } ],
+        [
+          { "t": "code", "v": "export CLAUDE_HEADLESS=true" },
+          { "t": "text", "v": " first" }
+        ],
+        [ { "t": "code", "v": "claude -p \"Generate tests for changed files\"" } ],
+        [
+          { "t": "text", "v": "Pipe " },
+          { "t": "code", "v": "yes \"\"" },
+          { "t": "text", "v": " into the command" }
+        ]
+      ],
+      "answer": 2,
+      "explanation": [
+        { "t": "code", "v": "-p" },
+        { "t": "text", "v": "/" },
+        { "t": "code", "v": "--print" },
+        { "t": "text", "v": " is the non-interactive mode; the job hangs because Claude Code awaits interactive input. A and B are non-existent features." }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q2",
+      "prompt": [
+        { "t": "text", "v": "You want review findings posted automatically as inline PR comments by a script. Which flag combination?" }
+      ],
+      "options": [
+        [ { "t": "code", "v": "-p --output-format json --json-schema findings.schema.json" } ],
+        [ { "t": "code", "v": "-p --verbose" } ],
+        [ { "t": "code", "v": "--output-format markdown --strict" } ],
+        [ { "t": "code", "v": "-p --comment-mode inline" } ]
+      ],
+      "answer": 0,
+      "explanation": [
+        { "t": "text", "v": "JSON output constrained by a schema is machine-parseable for automated posting. The others include non-existent flags." }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q3",
+      "prompt": [
+        { "t": "text", "v": "Developers dismiss ~60% of \"code smell\" findings but the security findings are excellent. Trust in the whole bot is collapsing. Best immediate + structural response?" }
+      ],
+      "options": [
+        [ { "t": "text", "v": "Instruct the model to \"be more conservative overall\"" } ],
+        [ { "t": "text", "v": "Temporarily disable the code-smell category while adding explicit categorical criteria and few-shot examples distinguishing acceptable patterns from genuine issues" } ],
+        [ { "t": "text", "v": "Require two model runs to agree before posting any finding" } ],
+        [ { "t": "text", "v": "Lower the bot to comment-only, never blocking" } ]
+      ],
+      "answer": 1,
+      "explanation": [
+        { "t": "text", "v": "High-FP categories poison trust in accurate ones; disable them while fixing root cause with specific criteria + few-shot boundary examples. A is a vague instruction (documented to fail); C suppresses intermittently-caught real issues." }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q4",
+      "prompt": [
+        { "t": "text", "v": "Claude Code generates a feature in a CI job, then in the same session is asked to \"carefully review your changes for bugs.\" It approves its own subtle race condition. Why, and what's the fix?" }
+      ],
+      "options": [
+        [ { "t": "text", "v": "The model is too small; upgrade tiers" } ],
+        [ { "t": "text", "v": "The session retains generation reasoning, biasing self-review; use an independent Claude instance without that context for the review" } ],
+        [ { "t": "text", "v": "Extended thinking should be enabled during review" } ],
+        [ { "t": "text", "v": "The review prompt needed the word \"critically\"" } ]
+      ],
+      "answer": 1,
+      "explanation": [
+        { "t": "text", "v": "Self-review limitation: retained reasoning context prevents questioning its own decisions. Independent instances (session context isolation) are the fix; C and D are documented non-fixes." }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q5",
+      "prompt": [
+        { "t": "text", "v": "Management wants everything on the Batch API for the 50% savings: (1) pre-merge security gate, (2) nightly test-coverage report, (3) weekly dependency audit. Correct split?" }
+      ],
+      "options": [
+        [ { "t": "text", "v": "All three on batch with polling" } ],
+        [ { "t": "text", "v": "Gate stays synchronous; nightly report and weekly audit move to batch" } ],
+        [ { "t": "text", "v": "All three stay synchronous to avoid ordering issues" } ],
+        [ { "t": "text", "v": "All three on batch with a real-time fallback timeout" } ]
+      ],
+      "answer": 1,
+      "explanation": [
+        { "t": "text", "v": "Batch = latency-tolerant, non-blocking only (up to 24h, no SLA). The blocking gate must be synchronous. Ordering is a non-issue (custom_id). Fallback hybrids add needless complexity." }
+      ]
+    },
+    {
+      "type": "quiz",
+      "qid": "Q6",
+      "prompt": [
+        { "t": "text", "v": "Every push to an open PR triggers a fresh review that repeats all previous comments, burying new ones. Fix?" }
+      ],
+      "options": [
+        [ { "t": "text", "v": "Review only the newest commit's diff" } ],
+        [ { "t": "text", "v": "Include prior review findings in context and instruct Claude to report only new or still-unaddressed issues" } ],
+        [ { "t": "text", "v": "Deduplicate comments with string matching in the pipeline script" } ],
+        [ { "t": "text", "v": "Limit reviews to one per PR" } ]
+      ],
+      "answer": 1,
+      "explanation": [
+        { "t": "text", "v": "The documented pattern. A misses issues arising from interactions with earlier changes; C is brittle post-hoc patching; D loses coverage of later commits." }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [
+        { "t": "text", "v": "Key Takeaways Card" }
+      ]
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        {
+          "spans": [
+            { "t": "text", "v": "Headless = " },
+            { "t": "code", "v": "-p" },
+            { "t": "text", "v": "/" },
+            { "t": "code", "v": "--print" },
+            { "t": "text", "v": "; structured CI output = " },
+            { "t": "code", "v": "--output-format json" },
+            { "t": "text", "v": " + " },
+            { "t": "code", "v": "--json-schema" },
+            { "t": "text", "v": ". CLAUDE_HEADLESS and --batch don't exist." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "CLAUDE.md gives CI runs project context: testing standards, fixtures, review criteria." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Precision comes from categorical criteria + severity examples, never \"be conservative.\"" }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "High-FP categories: disable temporarily, fix with few-shot boundary examples; track " },
+            { "t": "code", "v": "detected_pattern" },
+            { "t": "text", "v": " for systematic FP analysis." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Generator ≠ reviewer: independent instance. Big PRs: per-file passes + integration pass; bigger context ≠ better attention." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Batch API: 50% off, ≤24h, no SLA, custom_id correlation, no mid-request tool loops. Blocking → sync. SLA math: interval ≤ SLA − 24h." }
+          ],
+          "marker": "none",
+          "children": []
+        },
+        {
+          "spans": [
+            { "t": "text", "v": "Re-reviews see prior findings; test generation sees existing tests." }
+          ],
+          "marker": "none",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "definition",
+      "term": [
+        { "t": "strong", "v": "Docs" }
+      ],
+      "spans": [
+        { "t": "text", "v": "Claude Code CLI reference — " },
+        { "t": "link", "v": "https://code.claude.com/docs", "href": "https://code.claude.com/docs" },
+        { "t": "text", "v": " (CLI section) · Batches API — " },
+        { "t": "link", "v": "https://docs.claude.com/en/api", "href": "https://docs.claude.com/en/api" },
+        { "t": "text", "v": " (Message Batches)" }
+      ]
+    }
+  ]
+}
