@@ -128,10 +128,10 @@ function randomTest(label: string, count: number): ActiveTest {
 function examTest(): ActiveTest {
   const drawn = shuffle(scenarios).slice(0, EXAM_SCENARIO_COUNT)
   const picked = drawn.flatMap((s) =>
-    // Real exam format is single-answer only (official guide v0.2)
-    shuffle(
-      questions.filter((q) => q.scenarioId === s.id && !q.multiSelect)
-    ).slice(
+    // The real exam mixes multiple-choice and multiple-response items, each
+    // stating how many responses to select (official guide v1.0), so the
+    // simulation draws from both rather than filtering multi-select out.
+    shuffle(questions.filter((q) => q.scenarioId === s.id)).slice(
       0,
       EXAM_PER_SCENARIO
     )
@@ -353,7 +353,7 @@ const FORMAT_FACTS: { label: string; value: string }[] = [
     value: `${EXAM_SCENARIO_COUNT} of ${scenarios.length} scenarios × ${EXAM_PER_SCENARIO} questions`,
   },
   { label: "Time", value: `${EXAM_MINUTES} minutes` },
-  { label: "Answers", value: "single-answer only, as on the real exam" },
+  { label: "Answers", value: "single and multi-response, as on the real exam" },
   { label: "Pass bar", value: `scaled ${SCALED_PASS}/1000 ≈ 75% raw here` },
 ]
 

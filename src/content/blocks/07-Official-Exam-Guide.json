@@ -1,7 +1,7 @@
 {
   "id": "exam-guide",
   "title": "Claude Certified Architect – Foundations",
-  "subtitle": "Official Exam Guide (v0.2, June 30 2026)",
+  "subtitle": "Official Exam Guide (v1.0, effective July 2026)",
   "blocks": [
     {
       "type": "callout",
@@ -58,7 +58,7 @@
         ],
         [
           [{ "t": "text", "v": "Response format" }],
-          [{ "t": "text", "v": "Multiple choice; one correct answer and three incorrect options" }]
+          [{ "t": "text", "v": "Multiple choice and multiple response; each item states how many responses to select" }]
         ],
         [
           [{ "t": "text", "v": "Exam structure" }],
@@ -93,7 +93,7 @@
         ],
         [
           [{ "t": "text", "v": "Result reporting" }],
-          [{ "t": "text", "v": "Pass or fail" }]
+          [{ "t": "text", "v": "Pass/fail with a scaled score, plus percent-correct by domain on the score report" }]
         ]
       ]
     },
@@ -101,7 +101,7 @@
       "type": "callout",
       "variant": "principle",
       "spans": [
-        { "t": "text", "v": "The exam platform requires an answer to every question before you can advance — no question is left unanswered. Incorrect options are designed to be " },
+        { "t": "text", "v": "Incorrect options are designed to be " },
         { "t": "strong", "v": "plausible to a candidate with incomplete knowledge" },
         { "t": "text", "v": "." }
       ]

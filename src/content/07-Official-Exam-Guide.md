@@ -1,5 +1,5 @@
 # Claude Certified Architect – Foundations
-## Official Exam Guide (v0.2, June 30 2026)
+## Official Exam Guide (v1.0, effective July 2026)
 
 > Converted from the official Anthropic exam guide PDF. This is the authoritative source for what the exam tests — every task statement below is fair game.
 
@@ -18,7 +18,7 @@ Questions are grounded in realistic scenarios drawn from actual customer use cas
 | Credential | Claude Certified Architect – Foundations |
 | Number of questions | 60 |
 | Time limit | 120 minutes |
-| Response format | Multiple choice; one correct answer and three incorrect options |
+| Response format | Multiple choice and multiple response; each item states how many responses to select |
 | Exam structure | 4 scenarios drawn from a bank of 6 |
 | Content domains | 5 (weightings below) |
 | Delivery | Online proctored or at a test center |
@@ -26,9 +26,9 @@ Questions are grounded in realistic scenarios drawn from actual customer use cas
 | Scoring | Scaled 100–1,000; minimum passing score **720** |
 | Validity | 12 months from award date; free non-proctored renewal assessment if renewed on time |
 | Retakes | Wait 14 / 30 / 90 days after attempts 1 / 2 / 3; max 4 attempts per rolling 12 months |
-| Result reporting | Pass or fail |
+| Result reporting | Pass/fail with a scaled score, plus percent-correct by domain on the score report |
 
-> The exam platform requires an answer to every question before you can advance — no question is left unanswered. Incorrect options are designed to be **plausible to a candidate with incomplete knowledge**.
+> Incorrect options are designed to be **plausible to a candidate with incomplete knowledge**.
 
 ## Target Candidate
 

@@ -1091,7 +1091,7 @@ export const flashcards: Flashcard[] = [
     id: "log-4",
     topic: "Exam logistics",
     front: "Response format on the real exam?",
-    back: "Multiple choice — one correct answer and three incorrect options, all designed to be plausible to a candidate with incomplete knowledge. Every question must be answered before advancing.",
+    back: "Multiple choice **and multiple response** — each item states how many responses to select. Distractors are designed to be plausible to a candidate with incomplete knowledge.",
   },
   {
     id: "log-5",

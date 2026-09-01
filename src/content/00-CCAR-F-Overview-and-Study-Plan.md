@@ -7,7 +7,7 @@
 
 ## 1. How the Exam Is Assembled
 
-**60 questions, 120 minutes, 4 scenarios drawn at random from a bank of 6** — roughly 15 questions per drawn scenario, every question single-answer with one correct option and three distractors written to be plausible to a candidate with incomplete knowledge. You cannot predict which four scenarios you get, so all six guides are mandatory: a weak scenario has a 4-in-6 chance of appearing on your form.
+**60 questions, 120 minutes, 4 scenarios drawn at random from a bank of 6** — roughly 15 questions per drawn scenario, a mix of multiple-choice and multiple-response items that each state how many responses to select, with distractors written to be plausible to a candidate with incomplete knowledge. You cannot predict which four scenarios you get, so all six guides are mandatory: a weak scenario has a 4-in-6 chance of appearing on your form.
 
 | # | Scenario | Guide | Domains | What it tests |
 |---|---|---|---|---|

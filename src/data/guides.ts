@@ -31,7 +31,7 @@ export const guides: Guide[] = [
   {
     id: "exam-guide",
     shortTitle: "Official Exam Guide",
-    title: "Official Exam Guide (v0.2)",
+    title: "Official Exam Guide (v1.0)",
     tag: "Authoritative",
     doc: doc(examGuide),
   },
