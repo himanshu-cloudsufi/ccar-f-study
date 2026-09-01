@@ -13,8 +13,8 @@ function LearnView() {
   const active = guides.find((g) => g.id === activeId) ?? guides[0];
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:flex-row">
-      <aside className="shrink-0 md:w-64">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row">
+      <aside className="shrink-0 md:w-60">
         <div className="md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
           <nav className="flex flex-row gap-2 overflow-x-auto md:flex-col">
             {guides.map((g) => (
@@ -43,7 +43,8 @@ function LearnView() {
               </button>
             ))}
           </nav>
-          <div className="mt-4 hidden md:block">
+          {/* Below xl the outline has no rail of its own, so it stays here. */}
+          <div className="mt-4 hidden md:block xl:hidden">
             <GuideOutline doc={active.doc} />
           </div>
         </div>
@@ -56,6 +57,12 @@ function LearnView() {
           </CardContent>
         </Card>
       </article>
+
+      <aside className="hidden shrink-0 xl:block xl:w-56">
+        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+          <GuideOutline doc={active.doc} />
+        </div>
+      </aside>
     </div>
   );
 }
@@ -70,7 +77,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="text-xl">🎓</span>
             <div className="min-w-0">

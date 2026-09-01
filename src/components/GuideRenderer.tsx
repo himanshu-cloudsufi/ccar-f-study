@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ChevronRight, Lightbulb, Quote, X } from "lucide-react";
+import { Check, Lightbulb, Quote, X } from "lucide-react";
 import type { Block, GuideDoc, ListItem, Span } from "@/lib/blocks";
 import { slugify, spansToText } from "@/lib/blocks";
 import { Badge } from "@/components/ui/badge";
@@ -396,11 +396,11 @@ export function GuideOutline({ doc }: { doc: GuideDoc }) {
     (b): b is Extract<Block, { type: "heading" }> =>
       b.type === "heading" && b.level === 2,
   );
-  if (tops.length < 3) return null;
+  if (tops.length < 2) return null;
 
   return (
     <nav className="flex flex-col gap-0.5">
-      <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="pb-1.5 pl-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         On this page
       </p>
       {tops.map((h, i) => {
@@ -409,10 +409,9 @@ export function GuideOutline({ doc }: { doc: GuideDoc }) {
           <a
             key={i}
             href={`#${slugify(text)}`}
-            className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="border-l py-1 pl-3 pr-1 text-xs leading-snug text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
           >
-            <ChevronRight className="size-3 shrink-0" />
-            <span className="truncate">{text}</span>
+            {text}
           </a>
         );
       })}
