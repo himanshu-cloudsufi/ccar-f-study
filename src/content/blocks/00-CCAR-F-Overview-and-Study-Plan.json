@@ -7,21 +7,40 @@
       "type": "callout",
       "variant": "note",
       "spans": [
-        { "t": "text", "v": "Companion index to the six scenario guides. Read this first, then the " },
-        { "t": "strong", "v": "Official Exam Guide" },
-        { "t": "text", "v": " for the authoritative logistics, domain weights, task statements, and out-of-scope list — none of that is repeated here." }
+        {
+          "t": "text",
+          "v": "Companion index to the six scenario guides. Read this first, then the "
+        },
+        {
+          "t": "strong",
+          "v": "Official Exam Guide"
+        },
+        {
+          "t": "text",
+          "v": " for the authoritative logistics, domain weights, task statements, and out-of-scope list — none of that is repeated here."
+        }
       ]
     },
-    { "type": "divider" },
+    {
+      "type": "divider"
+    },
     {
       "type": "heading",
       "level": 2,
-      "spans": [{ "t": "text", "v": "1. Cross-Cutting Answer Patterns (Learn These Cold)" }]
+      "spans": [
+        {
+          "t": "text",
+          "v": "1. Cross-Cutting Answer Patterns (Learn These Cold)"
+        }
+      ]
     },
     {
       "type": "paragraph",
       "spans": [
-        { "t": "text", "v": "The official sample questions reveal a consistent grading philosophy. When two answers both \"could work,\" the correct one almost always follows one of these principles:" }
+        {
+          "t": "text",
+          "v": "The official sample questions reveal a consistent grading philosophy. When two answers both \"could work,\" the correct one almost always follows one of these principles:"
+        }
       ]
     },
     {
@@ -30,122 +49,166 @@
       "items": [
         {
           "spans": [
-            { "t": "strong", "v": "Deterministic > probabilistic when compliance is mandatory." },
-            { "t": "text", "v": " Business-critical ordering (verify identity before refund) → programmatic hooks/gates, not prompt text or few-shot examples. Prompts have a non-zero failure rate." }
+            {
+              "t": "strong",
+              "v": "Deterministic > probabilistic when compliance is mandatory."
+            },
+            {
+              "t": "text",
+              "v": " Business-critical ordering (verify identity before refund) → programmatic hooks/gates, not prompt text or few-shot examples. Prompts have a non-zero failure rate."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Fix the root cause with the simplest proportionate change." },
-            { "t": "text", "v": " Bad tool selection → improve tool " },
-            { "t": "em", "v": "descriptions" },
-            { "t": "text", "v": " first, before few-shot examples, routing layers, or classifiers. \"Over-engineered\" is a recurring wrong-answer trap." }
+            {
+              "t": "strong",
+              "v": "Fix the root cause with the simplest proportionate change."
+            },
+            {
+              "t": "text",
+              "v": " Bad tool selection → improve tool "
+            },
+            {
+              "t": "em",
+              "v": "descriptions"
+            },
+            {
+              "t": "text",
+              "v": " first, before few-shot examples, routing layers, or classifiers. \"Over-engineered\" is a recurring wrong-answer trap."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Self-reported confidence and sentiment are unreliable proxies." },
-            { "t": "text", "v": " Escalation should be driven by explicit criteria + few-shot examples, not confidence thresholds or sentiment analysis." }
+            {
+              "t": "strong",
+              "v": "Self-reported confidence and sentiment are unreliable proxies."
+            },
+            {
+              "t": "text",
+              "v": " Escalation should be driven by explicit criteria + few-shot examples, not confidence thresholds or sentiment analysis."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Match the API to latency tolerance." },
-            { "t": "text", "v": " Batch API (50% cheaper, up to 24h, no SLA) for overnight/weekly jobs; synchronous API for anything blocking." }
+            {
+              "t": "strong",
+              "v": "Match the API to latency tolerance."
+            },
+            {
+              "t": "text",
+              "v": " Batch API (50% cheaper, up to 24h, no SLA) for overnight/weekly jobs; synchronous API for anything blocking."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Attention dilutes; split the work." },
-            { "t": "text", "v": " Large multi-file reviews → per-file passes + a separate cross-file integration pass. Bigger context windows do NOT fix attention quality." }
+            {
+              "t": "strong",
+              "v": "Attention dilutes; split the work."
+            },
+            {
+              "t": "text",
+              "v": " Large multi-file reviews → per-file passes + a separate cross-file integration pass. Bigger context windows do NOT fix attention quality."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Independent reviewers beat self-review." },
-            { "t": "text", "v": " A fresh Claude instance without the generator's reasoning context catches more issues." }
+            {
+              "t": "strong",
+              "v": "Independent reviewers beat self-review."
+            },
+            {
+              "t": "text",
+              "v": " A fresh Claude instance without the generator's reasoning context catches more issues."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Never fabricate; make schemas honest." },
-            { "t": "text", "v": " Nullable/optional fields where data may be absent; enums with \"unclear\"/\"other\"+detail; retries can't recover information that isn't in the source." }
+            {
+              "t": "strong",
+              "v": "Never fabricate; make schemas honest."
+            },
+            {
+              "t": "text",
+              "v": " Nullable/optional fields where data may be absent; enums with \"unclear\"/\"other\"+detail; retries can't recover information that isn't in the source."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Errors must carry structure." },
-            { "t": "text", "v": " errorCategory, isRetryable, what was attempted, partial results. Generic failures, silent suppression, and whole-workflow termination are all anti-patterns." }
+            {
+              "t": "strong",
+              "v": "Errors must carry structure."
+            },
+            {
+              "t": "text",
+              "v": " errorCategory, isRetryable, what was attempted, partial results. Generic failures, silent suppression, and whole-workflow termination are all anti-patterns."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Subagents share nothing by default." },
-            { "t": "text", "v": " Context must be passed explicitly in prompts; coordinator routes all communication (hub-and-spoke)." }
+            {
+              "t": "strong",
+              "v": "Subagents share nothing by default."
+            },
+            {
+              "t": "text",
+              "v": " Context must be passed explicitly in prompts; coordinator routes all communication (hub-and-spoke)."
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "strong", "v": "Preserve provenance." },
-            { "t": "text", "v": " Claim–source mappings, publication dates, conflict annotation with attribution — never silently pick one value." }
+            {
+              "t": "strong",
+              "v": "Preserve provenance."
+            },
+            {
+              "t": "text",
+              "v": " Claim–source mappings, publication dates, conflict annotation with attribution — never silently pick one value."
+            }
           ],
           "marker": "none",
           "children": []
         }
       ]
     },
-    { "type": "divider" },
+    {
+      "type": "divider"
+    },
     {
       "type": "heading",
       "level": 2,
-      "spans": [{ "t": "text", "v": "2. Suggested 3-Week Study Plan" }]
-    },
-    {
-      "type": "definition",
-      "term": [{ "t": "text", "v": "Week 1 — Heavy domains (1 & 2)" }],
       "spans": [
-        { "t": "text", "v": "Work through guides 01, 03, 04. Do Exercise 1 and Exercise 4 from the official guide (build an agentic loop with structured errors; build a coordinator with two subagents)." }
+        {
+          "t": "text",
+          "v": "2. Official Documentation to Study"
+        }
       ]
-    },
-    {
-      "type": "definition",
-      "term": [{ "t": "text", "v": "Week 2 — Claude Code (Domain 3)" }],
-      "spans": [
-        { "t": "text", "v": "Work through guides 02 and 05. Do Exercise 2 (configure CLAUDE.md hierarchy, rules, a forked skill, an MCP server). Run Claude Code in headless mode (" },
-        { "t": "code", "v": "claude -p ..." },
-        { "t": "text", "v": ") at least once." }
-      ]
-    },
-    {
-      "type": "definition",
-      "term": [{ "t": "text", "v": "Week 3 — Structured output & reliability (Domains 4 & 5)" }],
-      "spans": [
-        { "t": "text", "v": "Work through guide 06. Do Exercise 3 (extraction pipeline with validation-retry and a batch run). Re-take all practice questions across the six guides; review every wrong answer against the patterns in Section 4 above." }
-      ]
-    },
-    { "type": "divider" },
-    {
-      "type": "heading",
-      "level": 2,
-      "spans": [{ "t": "text", "v": "3. Official Documentation to Study" }]
     },
     {
       "type": "list",
@@ -153,36 +216,76 @@
       "items": [
         {
           "spans": [
-            { "t": "text", "v": "Claude Code docs: " },
-            { "t": "link", "v": "https://code.claude.com/docs", "href": "https://code.claude.com/docs" },
-            { "t": "text", "v": " (memory/CLAUDE.md, rules, slash commands, skills, MCP, CLI reference, plan mode, sessions)" }
+            {
+              "t": "text",
+              "v": "Claude Code docs: "
+            },
+            {
+              "t": "link",
+              "v": "https://code.claude.com/docs",
+              "href": "https://code.claude.com/docs"
+            },
+            {
+              "t": "text",
+              "v": " (memory/CLAUDE.md, rules, slash commands, skills, MCP, CLI reference, plan mode, sessions)"
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "text", "v": "Claude API docs: " },
-            { "t": "link", "v": "https://docs.claude.com/en/api/overview", "href": "https://docs.claude.com/en/api/overview" },
-            { "t": "text", "v": " (tool use, tool_choice, Message Batches API)" }
+            {
+              "t": "text",
+              "v": "Claude API docs: "
+            },
+            {
+              "t": "link",
+              "v": "https://docs.claude.com/en/api/overview",
+              "href": "https://docs.claude.com/en/api/overview"
+            },
+            {
+              "t": "text",
+              "v": " (tool use, tool_choice, Message Batches API)"
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "text", "v": "Agent SDK docs: " },
-            { "t": "link", "v": "https://docs.claude.com/en/api/agent-sdk/overview", "href": "https://docs.claude.com/en/api/agent-sdk/overview" },
-            { "t": "text", "v": " (subagents, hooks, sessions)" }
+            {
+              "t": "text",
+              "v": "Agent SDK docs: "
+            },
+            {
+              "t": "link",
+              "v": "https://docs.claude.com/en/api/agent-sdk/overview",
+              "href": "https://docs.claude.com/en/api/agent-sdk/overview"
+            },
+            {
+              "t": "text",
+              "v": " (subagents, hooks, sessions)"
+            }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            { "t": "text", "v": "MCP: " },
-            { "t": "link", "v": "https://modelcontextprotocol.io", "href": "https://modelcontextprotocol.io" },
-            { "t": "text", "v": " (tools, resources, error handling)" }
+            {
+              "t": "text",
+              "v": "MCP: "
+            },
+            {
+              "t": "link",
+              "v": "https://modelcontextprotocol.io",
+              "href": "https://modelcontextprotocol.io"
+            },
+            {
+              "t": "text",
+              "v": " (tools, resources, error handling)"
+            }
           ],
           "marker": "none",
           "children": []

@@ -22,17 +22,7 @@ The official sample questions reveal a consistent grading philosophy. When two a
 
 ---
 
-## 2. Suggested 3-Week Study Plan
-
-**Week 1 — Heavy domains (1 & 2):** Work through guides 01, 03, 04. Do Exercise 1 and Exercise 4 from the official guide (build an agentic loop with structured errors; build a coordinator with two subagents).
-
-**Week 2 — Claude Code (Domain 3):** Work through guides 02 and 05. Do Exercise 2 (configure CLAUDE.md hierarchy, rules, a forked skill, an MCP server). Run Claude Code in headless mode (`claude -p ...`) at least once.
-
-**Week 3 — Structured output & reliability (Domains 4 & 5):** Work through guide 06. Do Exercise 3 (extraction pipeline with validation-retry and a batch run). Re-take all practice questions across the six guides; review every wrong answer against the patterns in Section 4 above.
-
----
-
-## 3. Official Documentation to Study
+## 2. Official Documentation to Study
 
 - Claude Code docs: https://code.claude.com/docs (memory/CLAUDE.md, rules, slash commands, skills, MCP, CLI reference, plan mode, sessions)
 - Claude API docs: https://docs.claude.com/en/api/overview (tool use, tool_choice, Message Batches API)
