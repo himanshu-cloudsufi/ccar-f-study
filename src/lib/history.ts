@@ -132,6 +132,40 @@ export function recordAttempt(
   return next
 }
 
+/**
+ * Fold a single inline answer (the quizzes embedded in the guides) into the
+ * mistakes pool. Deliberately updates `stats` only and appends no Attempt: a
+ * one-question attempt per click would swamp the recent-attempts list on the
+ * test intro, and reading a guide is not a test result.
+ */
+export function recordInlineAnswer(
+  prev: History,
+  questionId: string,
+  correct: boolean
+): History {
+  const s: QuestionStat = prev.stats[questionId]
+    ? { ...prev.stats[questionId] }
+    : { missed: false, streak: 0, timesWrong: 0, timesCorrect: 0, lastSeen: 0 }
+  s.lastSeen = Date.now()
+  if (correct) {
+    s.streak += 1
+    s.timesCorrect += 1
+    if (s.missed && s.streak >= MASTERY_STREAK) s.missed = false
+  } else {
+    s.streak = 0
+    s.timesWrong += 1
+    s.missed = true
+  }
+
+  const next: History = {
+    version: 1,
+    attempts: prev.attempts,
+    stats: { ...prev.stats, [questionId]: s },
+  }
+  saveHistory(next)
+  return next
+}
+
 export function missedIds(h: History): string[] {
   return Object.keys(h.stats).filter((id) => h.stats[id].missed)
 }

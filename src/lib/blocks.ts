@@ -55,3 +55,24 @@ export function slugify(text: string): string {
     .replace(/\s+/g, "-")
     .slice(0, 60);
 }
+
+/**
+ * Anchor ids for a document's headings, keyed by block index. Slugs collide
+ * within a document because `slugify` truncates at 60 chars and guides repeat
+ * headings like "Part 1: …", so repeats get a `-2`, `-3` suffix. The rendered
+ * headings and the outline both read this map, so their ids cannot drift.
+ */
+export function headingAnchors(blocks: Block[]): Map<number, string> {
+  const ids = new Map<number, string>();
+  const seen = new Map<string, number>();
+
+  blocks.forEach((b, i) => {
+    if (b.type !== "heading") return;
+    const base = slugify(spansToText(b.spans)) || "section";
+    const n = (seen.get(base) ?? 0) + 1;
+    seen.set(base, n);
+    ids.set(i, n === 1 ? base : `${base}-${n}`);
+  });
+
+  return ids;
+}

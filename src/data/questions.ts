@@ -11,6 +11,8 @@ export interface Question {
   explanation: string
   wrongAnswerNotes?: string | null
   source?: string
+  /** Domain ids from @/lib/domains, when known. Absent = fall back to the scenario map. */
+  domains?: string[]
 }
 
 // Handwritten questions transcribed from the local study guides (single-answer).

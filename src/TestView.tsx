@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { questions, type Question } from "@/data/questions"
 import {
   clearHistory,
@@ -11,6 +11,12 @@ import {
   type History,
   type QuestionOutcome,
 } from "@/lib/history"
+import {
+  domainsForQuestion,
+  projectedScaledScore,
+  scoreByDomain,
+  SCALED_PASS,
+} from "@/lib/domains"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -147,6 +153,57 @@ function targetedTest(
   }
 }
 
+// ─── Keyboard shortcuts ───────────────────────────────────────────────────────
+
+function Kbd({ children }: { children: ReactNode }) {
+  return (
+    <kbd className="rounded border bg-muted px-1 py-0.5 text-[10px] font-medium">
+      {children}
+    </kbd>
+  )
+}
+
+const SHORTCUTS: [string, string][] = [
+  ["A – H", "Select that option (toggles it on multi-select questions)"],
+  ["1 – 8", "Same as the letters, for the numeric row"],
+  ["← / →", "Previous / next question"],
+  ["Enter", "Next question — on the last one, opens the submit prompt"],
+  ["F", "Flag or unflag this question"],
+  ["?", "Show or hide this list"],
+]
+
+function ShortcutsPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <Card className="mt-4">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base">Keyboard shortcuts</CardTitle>
+          <Button size="sm" variant="ghost" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ul className="flex flex-col gap-1.5 text-sm">
+          {SHORTCUTS.map(([keys, what]) => (
+            <li key={keys} className="flex items-baseline gap-3">
+              <kbd className="min-w-16 shrink-0 rounded border bg-muted px-1.5 py-0.5 text-center text-xs font-medium">
+                {keys}
+              </kbd>
+              <span className="text-muted-foreground">{what}</span>
+            </li>
+          ))}
+        </ul>
+        {/* F is the flag key even though it is also a letter: no bank question
+            has a sixth option, and the number row still reaches every option. */}
+        <p className="mt-3 text-xs text-muted-foreground">
+          F always flags. Use 6 if a question ever offers an option F.
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
+
 // ─── Question navigator ───────────────────────────────────────────────────────
 
 function Navigator({
@@ -156,6 +213,7 @@ function Navigator({
   current,
   onJump,
   onSubmit,
+  onShortcuts,
 }: {
   test: TestQuestion[]
   answers: Record<string, number[]>
@@ -163,6 +221,7 @@ function Navigator({
   current: number
   onJump: (i: number) => void
   onSubmit: () => void
+  onShortcuts: () => void
 }) {
   const [open, setOpen] = useState(true)
   const answeredCount = test.filter((q) => (answers[q.id]?.length ?? 0) > 0).length
@@ -193,6 +252,13 @@ function Navigator({
             Submit test
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Keyboard: <Kbd>A</Kbd>–<Kbd>H</Kbd> or <Kbd>1</Kbd>–<Kbd>8</Kbd> answer ·{" "}
+          <Kbd>←</Kbd> <Kbd>→</Kbd> move · <Kbd>F</Kbd> flag ·{" "}
+          <button onClick={onShortcuts} className="underline hover:text-foreground">
+            <Kbd>?</Kbd> all shortcuts
+          </button>
+        </p>
       </CardHeader>
       {open && (
         <CardContent className="pt-0">
@@ -206,6 +272,10 @@ function Navigator({
                   key={q.id}
                   onClick={() => onJump(i)}
                   title={isFlagged ? "Flagged for review" : undefined}
+                  aria-current={isCurrent ? "true" : undefined}
+                  aria-label={`Question ${i + 1}: ${
+                    isAnswered ? "answered" : "not answered"
+                  }${isFlagged ? ", flagged for review" : ""}`}
                   className={`relative h-8 w-8 rounded-md border text-xs font-medium transition-colors ${
                     isFlagged
                       ? "border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-400"
@@ -337,6 +407,7 @@ function IntroScreen({
                 <button
                   key={s.id}
                   onClick={() => toggleScenario(s.id)}
+                  aria-pressed={on}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     on
                       ? "border-primary bg-primary text-primary-foreground"
@@ -503,6 +574,7 @@ export default function TestView() {
   const [flagged, setFlagged] = useState<Record<string, boolean>>({})
   const [elapsed, setElapsed] = useState(0)
   const [confirmSubmit, setConfirmSubmit] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   const finishedRef = useRef(false)
   const stateRef = useRef({ test, answers, history })
@@ -521,6 +593,7 @@ export default function TestView() {
     setCurrent(0)
     setElapsed(0)
     setConfirmSubmit(false)
+    setShowShortcuts(false)
     setPhase("running")
     window.scrollTo({ top: 0 })
   }
@@ -554,6 +627,92 @@ export default function TestView() {
     if (phase !== "running" || !test?.durationSec) return
     if (elapsed >= test.durationSec) finish()
   }, [elapsed, phase, test])
+
+  // Keyboard driving, only while a question is on screen. Modifier chords are
+  // deliberately untouched so app-level bindings (⌘K) still see them.
+  useEffect(() => {
+    if (phase !== "running" || !test) return
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const el = e.target as HTMLElement | null
+      if (
+        el &&
+        (el.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))
+      )
+        return
+
+      const items = test.questions
+      const q = items[current]
+      if (!q) return
+
+      if (e.key === "?") {
+        e.preventDefault()
+        setShowShortcuts((v) => !v)
+        return
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault()
+        setFlagged((f) => ({ ...f, [q.id]: !f[q.id] }))
+        return
+      }
+      if (e.key === "ArrowLeft") {
+        if (current === 0) return
+        e.preventDefault()
+        setCurrent((c) => c - 1)
+        return
+      }
+      if (e.key === "ArrowRight" || e.key === "Enter") {
+        // Enter belongs to a focused button (Next, Flag, Submit); only the
+        // option radios/checkboxes ignore it, so we take it back there.
+        const role = el?.getAttribute("role")
+        if (
+          e.key === "Enter" &&
+          el?.tagName === "BUTTON" &&
+          role !== "radio" &&
+          role !== "checkbox"
+        )
+          return
+        e.preventDefault()
+        if (current < items.length - 1) {
+          setCurrent((c) => c + 1)
+          return
+        }
+        // Last question: hand off to the existing confirm affordance rather
+        // than submitting out from under the user.
+        const loose =
+          items.some((x) => (answers[x.id]?.length ?? 0) === 0) ||
+          items.some((x) => flagged[x.id])
+        if (loose) setConfirmSubmit(true)
+        else finish()
+        return
+      }
+
+      // Letters and the number row both address the visible options. F is
+      // reserved for flagging (see ShortcutsPanel).
+      const oi = /^[a-eg-hA-EG-H]$/.test(e.key)
+        ? e.key.toUpperCase().charCodeAt(0) - 65
+        : /^[1-8]$/.test(e.key)
+          ? Number(e.key) - 1
+          : -1
+      if (oi < 0 || oi >= q.shuffledOptions.length) return
+      e.preventDefault()
+      setAnswers((a) => {
+        if (!q.multiSelect) return { ...a, [q.id]: [oi] }
+        const cur = a[q.id] ?? []
+        return {
+          ...a,
+          [q.id]: cur.includes(oi) ? cur.filter((x) => x !== oi) : [...cur, oi],
+        }
+      })
+    }
+
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+    // No dep array: the handler closes over answers/flagged/current, and
+    // rebinding one listener per render is cheaper than stale-closure bugs.
+  })
 
   const score = useMemo(
     () =>
@@ -589,6 +748,14 @@ export default function TestView() {
       byScenario.set(q.scenario, e)
     }
 
+    const byDomain = scoreByDomain(
+      items.map((q) => ({
+        question: q,
+        correct: sameSet(answers[q.id], q.shuffledAnswers),
+      }))
+    )
+    const projection = projectedScaledScore(byDomain)
+
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
         <Card className="mb-6">
@@ -612,6 +779,68 @@ export default function TestView() {
           </CardHeader>
           <CardContent>
             <Progress value={pct} className="mb-5" />
+
+            {projection && (
+              <div className="mb-5 rounded-lg border p-4">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="text-2xl font-semibold tabular-nums">
+                    Projected ≈ {projection.scaled}
+                  </span>
+                  <Badge
+                    variant={
+                      projection.scaled >= SCALED_PASS ? "default" : "destructive"
+                    }
+                  >
+                    pass bar {SCALED_PASS}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {projection.weightedPercent}% weighted by domain
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Estimate only. Anthropic does not publish how raw performance
+                  is scaled onto 100–1000, so this maps your domain-weighted
+                  accuracy linearly onto that range — a rough orientation, not a
+                  prediction of your result.
+                </p>
+              </div>
+            )}
+
+            <div className="mb-2 text-sm font-medium">By domain</div>
+            <div className="mb-2 grid gap-2 sm:grid-cols-2">
+              {byDomain.map((d) => (
+                <div
+                  key={d.domain.id}
+                  className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                >
+                  <span className="min-w-0 truncate">
+                    <span className="font-medium">{d.domain.label}</span>{" "}
+                    {d.domain.name}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {d.domain.weight}%
+                  </span>
+                  <Badge
+                    variant={
+                      d.percent >= 75
+                        ? "default"
+                        : d.percent >= 50
+                          ? "secondary"
+                          : "destructive"
+                    }
+                  >
+                    {d.correct}/{d.total}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <p className="mb-5 text-xs text-muted-foreground">
+              Weakest first · the % is the domain's share of the real exam.
+              Questions are attributed by scenario, so one question can count
+              toward several domains — treat this as directional.
+            </p>
+
+            <div className="mb-2 text-sm font-medium">By scenario</div>
             <div className="mb-5 grid gap-2 sm:grid-cols-2">
               {[...byScenario.entries()]
                 .sort(
@@ -667,6 +896,11 @@ export default function TestView() {
                       {correct ? "Correct" : !chosen?.length ? "Skipped" : "Wrong"}
                     </Badge>
                     <Badge variant="outline">{q.scenario}</Badge>
+                    {domainsForQuestion(q).map((d) => (
+                      <Badge key={d.id} variant="outline" title={d.name}>
+                        {d.label}
+                      </Badge>
+                    ))}
                     {q.multiSelect && <Badge variant="secondary">Multi-select</Badge>}
                     {flagged[q.id] && <Badge variant="outline">🚩 Flagged</Badge>}
                   </div>
@@ -872,7 +1106,10 @@ export default function TestView() {
           window.scrollTo({ top: 0 })
         }}
         onSubmit={requestSubmit}
+        onShortcuts={() => setShowShortcuts(true)}
       />
+
+      {showShortcuts && <ShortcutsPanel onClose={() => setShowShortcuts(false)} />}
 
       {confirmSubmit && (
         <Card className="mt-4 border-destructive/60">

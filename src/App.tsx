@@ -5,11 +5,23 @@ import TestView from "@/TestView";
 import CardsView from "@/CardsView";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ThemeToggle from "@/components/ThemeToggle";
+import {
+  CommandPalette,
+  SearchTriggerButton,
+} from "@/components/CommandPalette";
+import { useRoute, type Mode } from "@/lib/router";
+import type { SearchTarget } from "@/lib/search";
 
 // ─── Learn mode ───────────────────────────────────────────────────────────────
 
-function LearnView() {
-  const [activeId, setActiveId] = useState(guides[0].id);
+function LearnView({
+  activeId,
+  onSelect,
+}: {
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
   const active = guides.find((g) => g.id === activeId) ?? guides[0];
 
   return (
@@ -20,10 +32,7 @@ function LearnView() {
             {guides.map((g) => (
               <button
                 key={g.id}
-                onClick={() => {
-                  setActiveId(g.id);
-                  window.scrollTo({ top: 0 });
-                }}
+                onClick={() => onSelect(g.id)}
                 className={`shrink-0 rounded-lg border px-3 py-2 text-left text-sm transition-colors md:w-full ${
                   g.id === activeId
                     ? "border-primary bg-primary text-primary-foreground"
@@ -69,10 +78,25 @@ function LearnView() {
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
 
-type Mode = "learn" | "test" | "cards";
-
 export default function App() {
-  const [mode, setMode] = useState<Mode>("learn");
+  const { route, navigate } = useRoute();
+  const mode = route.mode;
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // A guide hit deep-links to its section; questions and cards can only land on
+  // their mode, since neither test nor cards mode addresses a single item yet.
+  const goToResult = (target: SearchTarget) => {
+    setSearchOpen(false);
+    if (target.kind === "guide") {
+      navigate({
+        mode: "learn",
+        guideId: target.guideId,
+        section: target.slug ?? undefined,
+      });
+    } else {
+      navigate({ mode: target.kind === "question" ? "test" : "cards" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -89,23 +113,39 @@ export default function App() {
               </p>
             </div>
           </div>
-          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
-            <TabsList>
-              <TabsTrigger value="learn">📖 Learn</TabsTrigger>
-              <TabsTrigger value="test">✍️ Test</TabsTrigger>
-              <TabsTrigger value="cards">🃏 Cards</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <SearchTriggerButton onClick={() => setSearchOpen(true)} />
+            <ThemeToggle />
+            <Tabs
+              value={mode}
+              onValueChange={(v) => navigate({ mode: v as Mode })}
+            >
+              <TabsList>
+                <TabsTrigger value="learn">📖 Learn</TabsTrigger>
+                <TabsTrigger value="test">✍️ Test</TabsTrigger>
+                <TabsTrigger value="cards">🃏 Cards</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
       </header>
 
       {mode === "learn" ? (
-        <LearnView />
+        <LearnView
+          activeId={route.guideId}
+          onSelect={(id) => navigate({ guideId: id })}
+        />
       ) : mode === "test" ? (
         <TestView />
       ) : (
         <CardsView />
       )}
+
+      <CommandPalette
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onNavigate={goToResult}
+      />
     </div>
   );
 }

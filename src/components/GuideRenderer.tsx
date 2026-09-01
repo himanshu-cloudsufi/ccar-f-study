@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Check, Lightbulb, Quote, X } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
+import { Check, Hash, Lightbulb, Quote, X } from "lucide-react";
 import type { Block, GuideDoc, ListItem, Span } from "@/lib/blocks";
-import { slugify, spansToText } from "@/lib/blocks";
+import { headingAnchors, spansToText } from "@/lib/blocks";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { loadHistory, recordInlineAnswer } from "@/lib/history";
 import { cn } from "@/lib/utils";
 
 // ─── Inline spans ─────────────────────────────────────────────────────────────
@@ -145,9 +146,35 @@ function splitClauses(spans: Span[]): Span[][] {
 
 const LETTERS = "ABCDEFGH";
 
-function Quiz({ block }: { block: Extract<Block, { type: "quiz" }> }) {
+/**
+ * The guide quizzes are the same items as the handwritten half of the question
+ * bank: guide `s3` + qid `Q2` is bank id `s3q2`. Mapping them lets an answer
+ * here feed the same mistakes pool the test mode drills from. Returns null for
+ * documents with no bank counterpart (the overview and the exam guide).
+ */
+function bankQuestionId(docId: string, qid: string): string | null {
+  const n = /^Q(\d+)$/.exec(qid);
+  return n && /^s\d+$/.test(docId) ? `${docId}q${n[1]}` : null;
+}
+
+function Quiz({
+  block,
+  docId,
+}: {
+  block: Extract<Block, { type: "quiz" }>;
+  docId: string;
+}) {
   const [picked, setPicked] = useState<number | null>(null);
   const revealed = picked !== null;
+  const correct = picked === block.answer;
+  const promptId = useId();
+
+  const answer = (i: number) => {
+    if (picked !== null) return;
+    setPicked(i);
+    const id = bankQuestionId(docId, block.qid);
+    if (id) recordInlineAnswer(loadHistory(), id, i === block.answer);
+  };
 
   return (
     <div className="rounded-lg border bg-card">
@@ -155,12 +182,17 @@ function Quiz({ block }: { block: Extract<Block, { type: "quiz" }> }) {
         <Badge variant="secondary" className="shrink-0 font-mono">
           {block.qid}
         </Badge>
-        <p className="text-sm leading-relaxed">
+        <p id={promptId} className="text-sm leading-relaxed">
           <Spans spans={block.prompt} />
         </p>
       </div>
 
-      <div className="flex flex-col gap-1.5 p-3">
+      <div
+        role="radiogroup"
+        aria-labelledby={promptId}
+        aria-disabled={revealed}
+        className="flex flex-col gap-1.5 p-3"
+      >
         {block.options.map((opt, i) => {
           const isAnswer = i === block.answer;
           const isPicked = i === picked;
@@ -168,8 +200,11 @@ function Quiz({ block }: { block: Extract<Block, { type: "quiz" }> }) {
             <button
               key={i}
               type="button"
-              onClick={() => picked === null && setPicked(i)}
+              role="radio"
+              aria-checked={isPicked}
+              onClick={() => answer(i)}
               disabled={revealed}
+              aria-disabled={revealed}
               className={cn(
                 "flex items-start gap-2.5 rounded-md border px-3 py-2 text-left text-sm transition-colors",
                 !revealed && "hover:border-primary/50 hover:bg-accent",
@@ -196,49 +231,104 @@ function Quiz({ block }: { block: Extract<Block, { type: "quiz" }> }) {
               <span className="min-w-0 flex-1">
                 <Spans spans={opt} />
               </span>
+              {/* The green/red tint alone carries no meaning without colour. */}
+              {revealed && (isAnswer || isPicked) && (
+                <span className="mt-px shrink-0">
+                  {isAnswer ? (
+                    <Check
+                      aria-hidden="true"
+                      className="size-4 text-green-600 dark:text-green-400"
+                    />
+                  ) : (
+                    <X
+                      aria-hidden="true"
+                      className="size-4 text-red-600 dark:text-red-400"
+                    />
+                  )}
+                  <span className="sr-only">
+                    {isAnswer
+                      ? isPicked
+                        ? " — correct, your answer"
+                        : " — correct answer"
+                      : " — your answer, incorrect"}
+                  </span>
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      {revealed ? (
-        <div className="border-t px-4 py-3 text-sm leading-relaxed">
-          <span
-            className={cn(
-              "mr-1.5 font-semibold",
-              picked === block.answer
-                ? "text-green-600 dark:text-green-400"
-                : "text-red-600 dark:text-red-400",
-            )}
-          >
-            {picked === block.answer ? "Correct." : "Not quite —"}
-          </span>
-          <span className="font-medium">Answer: {LETTERS[block.answer]}.</span>{" "}
-          <Spans spans={block.explanation} />
-        </div>
-      ) : (
-        <div className="border-t px-4 py-2 text-xs text-muted-foreground">
-          Pick an option to check yourself.
-        </div>
-      )}
+      <div aria-live="polite" className="border-t">
+        {revealed ? (
+          <p className="px-4 py-3 text-sm leading-relaxed">
+            <span
+              className={cn(
+                "mr-1.5 inline-flex items-center gap-1 font-semibold",
+                correct
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400",
+              )}
+            >
+              {correct ? (
+                <Check aria-hidden="true" className="size-4" />
+              ) : (
+                <X aria-hidden="true" className="size-4" />
+              )}
+              {correct ? "Correct." : "Not quite —"}
+            </span>
+            <span className="font-medium">
+              Answer: {LETTERS[block.answer]}.
+            </span>{" "}
+            <Spans spans={block.explanation} />
+            <span className="sr-only">
+              {" "}
+              This question is answered; the options are no longer selectable.
+            </span>
+          </p>
+        ) : (
+          <p className="px-4 py-2 text-xs text-muted-foreground">
+            Pick an option to check yourself.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
 // ─── Blocks ───────────────────────────────────────────────────────────────────
 
-function BlockView({ block }: { block: Block }) {
+function BlockView({
+  block,
+  id,
+  section,
+  docId,
+}: {
+  block: Block;
+  /** Anchor id for headings — computed once per document by `headingAnchors`. */
+  id?: string;
+  /** Text of the nearest heading above, used to label the table scroll region. */
+  section?: string;
+  /** Owning document id — quizzes map it onto the shared question bank. */
+  docId: string;
+}) {
   switch (block.type) {
     case "heading": {
       const text = spansToText(block.spans);
-      const id = slugify(text);
       if (block.level === 2) {
         return (
           <h2
             id={id}
-            className="scroll-mt-24 border-b pb-2 pt-4 text-xl font-semibold tracking-tight first:pt-0"
+            className="group scroll-mt-24 border-b pb-2 pt-4 text-xl font-semibold tracking-tight first:pt-0"
           >
             <Spans spans={block.spans} />
+            <a
+              href={`#${id}`}
+              aria-label={`Link to section: ${text}`}
+              className="ml-2 inline-flex align-middle text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+            >
+              <Hash aria-hidden="true" className="size-4" />
+            </a>
           </h2>
         );
       }
@@ -332,13 +422,20 @@ function BlockView({ block }: { block: Block }) {
 
     case "table":
       return (
-        <div className="overflow-x-auto rounded-lg border">
+        // Focusable region so the horizontal scroll is reachable by keyboard.
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={section ? `Table: ${section}` : "Table"}
+          className="overflow-x-auto rounded-lg border"
+        >
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-muted/60">
                 {block.columns.map((c, i) => (
                   <th
                     key={i}
+                    scope="col"
                     className="whitespace-nowrap border-b px-3 py-2 text-left font-semibold"
                   >
                     <Spans spans={c} />
@@ -384,18 +481,80 @@ function BlockView({ block }: { block: Block }) {
       return <Separator className="my-1" />;
 
     case "quiz":
-      return <Quiz block={block} />;
+      return <Quiz block={block} docId={docId} />;
   }
 }
 
 // ─── Document ─────────────────────────────────────────────────────────────────
 
+/** Marks the end of the guide body, so the outline can spot the last section. */
+const END_SENTINEL_ID = "guide-end";
+
+/** The app header is `sticky top-0` and the rail `sticky top-20` — 5rem. */
+const HEADER_OFFSET = 80;
+
+/**
+ * Tracks which section the reader is in from the headings' crossings of the
+ * line just under the sticky header. A heading counts as current once its top
+ * has passed that line, so the active entry is the last one to have crossed —
+ * not merely the first one to touch the viewport.
+ */
+function useActiveHeading(ids: string[]): string | null {
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (ids.length === 0) return;
+
+    // Stale between crossings, but a heading only changes side of the line by
+    // firing the callback, so the comparison below stays correct.
+    const tops = new Map<string, number>();
+    let atEnd = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.target.id === END_SENTINEL_ID) atEnd = e.isIntersecting;
+          else tops.set(e.target.id, e.boundingClientRect.top);
+        }
+        // The last section runs to the end of the document, so seeing the end
+        // of the body means reading it — even if its heading never crossed.
+        if (atEnd) {
+          setActive(ids[ids.length - 1]);
+          return;
+        }
+        const passed = ids.filter(
+          (id) => (tops.get(id) ?? Infinity) <= HEADER_OFFSET + 1,
+        );
+        setActive(passed.length ? passed[passed.length - 1] : ids[0]);
+      },
+      { rootMargin: `-${HEADER_OFFSET}px 0px 0px 0px` },
+    );
+
+    for (const id of [...ids, END_SENTINEL_ID]) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, [ids]);
+
+  return active;
+}
+
 /** In-page outline built from the document's level-2 headings. */
 export function GuideOutline({ doc }: { doc: GuideDoc }) {
-  const tops = doc.blocks.filter(
-    (b): b is Extract<Block, { type: "heading" }> =>
-      b.type === "heading" && b.level === 2,
-  );
+  const tops = useMemo(() => {
+    const anchors = headingAnchors(doc.blocks);
+    return doc.blocks.flatMap((b, i) =>
+      b.type === "heading" && b.level === 2
+        ? [{ id: anchors.get(i) as string, text: spansToText(b.spans) }]
+        : [],
+    );
+  }, [doc]);
+
+  const ids = useMemo(() => tops.map((t) => t.id), [tops]);
+  const active = useActiveHeading(ids);
+
   if (tops.length < 2) return null;
 
   return (
@@ -403,15 +562,21 @@ export function GuideOutline({ doc }: { doc: GuideDoc }) {
       <p className="pb-1.5 pl-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         On this page
       </p>
-      {tops.map((h, i) => {
-        const text = spansToText(h.spans);
+      {tops.map((t) => {
+        const current = t.id === active;
         return (
           <a
-            key={i}
-            href={`#${slugify(text)}`}
-            className="border-l py-1 pl-3 pr-1 text-xs leading-snug text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+            key={t.id}
+            href={`#${t.id}`}
+            aria-current={current ? "location" : undefined}
+            className={cn(
+              "border-l py-1 pl-3 pr-1 text-xs leading-snug transition-colors hover:border-foreground/40 hover:text-foreground",
+              current
+                ? "border-l-2 border-foreground font-medium text-foreground"
+                : "text-muted-foreground",
+            )}
           >
-            {text}
+            {t.text}
           </a>
         );
       })}
@@ -420,6 +585,19 @@ export function GuideOutline({ doc }: { doc: GuideDoc }) {
 }
 
 export default function GuideRenderer({ doc }: { doc: GuideDoc }) {
+  const anchors = useMemo(() => headingAnchors(doc.blocks), [doc]);
+
+  // Nearest heading above each block, so tables can name their scroll region.
+  const sections = useMemo(() => {
+    const out: string[] = [];
+    doc.blocks.forEach((b, i) => {
+      out.push(
+        b.type === "heading" ? spansToText(b.spans) : (out[i - 1] ?? doc.title),
+      );
+    });
+    return out;
+  }, [doc]);
+
   return (
     <div className="flex flex-col gap-3.5">
       <header className="flex flex-col gap-1 pb-1">
@@ -429,8 +607,15 @@ export default function GuideRenderer({ doc }: { doc: GuideDoc }) {
         )}
       </header>
       {doc.blocks.map((b, i) => (
-        <BlockView key={i} block={b} />
+        <BlockView
+          key={i}
+          block={b}
+          id={anchors.get(i)}
+          section={sections[i]}
+          docId={doc.id}
+        />
       ))}
+      <div id={END_SENTINEL_ID} aria-hidden="true" className="h-px" />
     </div>
   );
 }
