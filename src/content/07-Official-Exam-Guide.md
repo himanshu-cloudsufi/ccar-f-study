@@ -24,7 +24,8 @@ Questions are grounded in realistic scenarios drawn from actual customer use cas
 | Delivery | Online proctored or at a test center |
 | Exam fee | $125 USD |
 | Scoring | Scaled 100–1,000; minimum passing score **720** |
-| Validity | 12 months from award date |
+| Validity | 12 months from award date; free non-proctored renewal assessment if renewed on time |
+| Retakes | Wait 14 / 30 / 90 days after attempts 1 / 2 / 3; max 4 attempts per rolling 12 months |
 | Result reporting | Pass or fail |
 
 > The exam platform requires an answer to every question before you can advance — no question is left unanswered. Incorrect options are designed to be **plausible to a candidate with incomplete knowledge**.
