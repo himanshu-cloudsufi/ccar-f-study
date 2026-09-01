@@ -66,7 +66,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 1: Built-in Tools — Purposes and Selection (Task Statement 2.5)"
+          "v": "Built-in Tools — Purposes and Selection (Task Statement 2.5)"
         }
       ]
     },
@@ -406,7 +406,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 2: MCP Server Integration (Task Statement 2.4)"
+          "v": "MCP Server Integration (Task Statement 2.4)"
         }
       ]
     },
@@ -722,7 +722,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 3: Task Decomposition for Dev Workflows (Task Statement 1.6)"
+          "v": "Task Decomposition for Dev Workflows (Task Statement 1.6)"
         }
       ]
     },
@@ -847,7 +847,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 4: Session State, Resumption, Forking (Task Statement 1.7)"
+          "v": "Session State, Resumption, Forking (Task Statement 1.7)"
         }
       ]
     },
@@ -949,7 +949,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 5: Context Management in Large Codebases (Task Statement 5.4)"
+          "v": "Context Management in Large Codebases (Task Statement 5.4)"
         }
       ]
     },
@@ -1112,7 +1112,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 6: Practice Questions"
+          "v": "Practice Questions"
         }
       ]
     },

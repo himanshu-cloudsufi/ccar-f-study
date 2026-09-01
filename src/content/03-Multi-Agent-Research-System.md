@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: Hub-and-Spoke Orchestration (Task Statement 1.2)
+## Hub-and-Spoke Orchestration (Task Statement 1.2)
 
 ### Architecture rules
 - The **coordinator** owns: task decomposition, delegation, result aggregation, deciding *which* subagents to invoke, error handling, and information routing.
@@ -27,7 +27,7 @@ Mitigations:
 
 ---
 
-## Part 2: Spawning Subagents and Passing Context (Task Statement 1.3)
+## Spawning Subagents and Passing Context (Task Statement 1.3)
 
 ### Mechanics to memorize
 - Subagents are spawned via the **Task tool**. The coordinator's **`allowedTools` must include `"Task"`** or it cannot spawn anything.
@@ -55,7 +55,7 @@ This preserves **attribution** through handoffs and lets downstream agents reaso
 
 ---
 
-## Part 3: Tool Distribution Across Agents (Task Statement 2.3)
+## Tool Distribution Across Agents (Task Statement 2.3)
 
 ### Principles
 - **Too many tools degrades selection.** An agent with 18 tools instead of 4–5 makes unreliable choices — decision complexity scales with tool count.
@@ -75,7 +75,7 @@ Replace generic tools with constrained ones: `fetch_url` → `load_document` tha
 
 ---
 
-## Part 4: Error Propagation (Task Statements 2.2, 5.3)
+## Error Propagation (Task Statements 2.2, 5.3)
 
 ### The correct pattern (sample Q8)
 When a subagent fails (e.g., web search timeout), return **structured error context** to the coordinator:
@@ -99,7 +99,7 @@ Synthesis output should annotate which findings are **well-supported** vs which 
 
 ---
 
-## Part 5: Context, Provenance, and Conflicts (Task Statements 5.1, 5.6)
+## Context, Provenance, and Conflicts (Task Statements 5.1, 5.6)
 
 ### Position effects and budgets
 - **Lost-in-the-middle:** in long aggregated inputs, middle-section findings get dropped. Put a key-findings summary **at the beginning** and organize details under explicit section headers.
@@ -114,7 +114,7 @@ Synthesis output should annotate which findings are **well-supported** vs which 
 
 ---
 
-## Part 6: Practice Questions
+## Practice Questions
 
 **Q1.** Your coordinator's prompt instructs it to delegate research, but every Task tool call fails. The subagent definitions are correct. Most likely cause?
 

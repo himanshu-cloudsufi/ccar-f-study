@@ -50,7 +50,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 1: CLAUDE.md Configuration Hierarchy (Task Statement 3.1)"
+          "v": "CLAUDE.md Configuration Hierarchy (Task Statement 3.1)"
         }
       ]
     },
@@ -315,7 +315,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 2: Path-Specific Rules (Task Statement 3.3)"
+          "v": "Path-Specific Rules (Task Statement 3.3)"
         }
       ]
     },
@@ -537,7 +537,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 3: Custom Slash Commands and Skills (Task Statement 3.2)"
+          "v": "Custom Slash Commands and Skills (Task Statement 3.2)"
         }
       ]
     },
@@ -834,7 +834,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 4: Plan Mode vs Direct Execution (Task Statement 3.4)"
+          "v": "Plan Mode vs Direct Execution (Task Statement 3.4)"
         }
       ]
     },
@@ -1039,7 +1039,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 5: Iterative Refinement Techniques (Task Statement 3.5)"
+          "v": "Iterative Refinement Techniques (Task Statement 3.5)"
         }
       ]
     },
@@ -1154,7 +1154,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 6: Sessions and Context (Task Statements 1.7, 5.4)"
+          "v": "Sessions and Context (Task Statements 1.7, 5.4)"
         }
       ]
     },
@@ -1293,7 +1293,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 7: Practice Questions"
+          "v": "Practice Questions"
         }
       ]
     },

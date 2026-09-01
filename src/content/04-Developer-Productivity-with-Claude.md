@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: Built-in Tools — Purposes and Selection (Task Statement 2.5)
+## Built-in Tools — Purposes and Selection (Task Statement 2.5)
 
 | Tool | Purpose | Example |
 |---|---|---|
@@ -29,7 +29,7 @@ Build understanding **incrementally**: Grep for entry points → Read to follow 
 
 ---
 
-## Part 2: MCP Server Integration (Task Statement 2.4)
+## MCP Server Integration (Task Statement 2.4)
 
 ### Configuration scoping
 | Scope | File | Shared? | Use for |
@@ -66,7 +66,7 @@ Each developer sets `GITHUB_TOKEN` locally; the config is safe to commit.
 
 ---
 
-## Part 3: Task Decomposition for Dev Workflows (Task Statement 1.6)
+## Task Decomposition for Dev Workflows (Task Statement 1.6)
 
 Two patterns — know when each applies:
 
@@ -81,7 +81,7 @@ Two patterns — know when each applies:
 
 ---
 
-## Part 4: Session State, Resumption, Forking (Task Statement 1.7)
+## Session State, Resumption, Forking (Task Statement 1.7)
 
 - **`--resume <session-name>`** — continue a named investigation across work sessions.
 - **`fork_session`** — parallel exploration branches from a **shared analysis baseline**: e.g., compare two testing strategies or two refactoring approaches without repeating the expensive codebase analysis.
@@ -91,7 +91,7 @@ Two patterns — know when each applies:
 
 ---
 
-## Part 5: Context Management in Large Codebases (Task Statement 5.4)
+## Context Management in Large Codebases (Task Statement 5.4)
 
 ### Symptoms of context degradation
 In extended sessions the model starts giving **inconsistent answers** and referencing **"typical patterns"** instead of the specific classes it discovered earlier. That's your cue to intervene.
@@ -107,7 +107,7 @@ Design **structured state persistence**: each agent **exports state to a known l
 
 ---
 
-## Part 6: Practice Questions
+## Practice Questions
 
 **Q1.** You need to find every file that *imports* `PaymentProcessor` anywhere in the repo. Which tool?
 

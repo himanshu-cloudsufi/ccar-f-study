@@ -53,14 +53,17 @@ export function slugify(text: string): string {
     .replace(/[^\w\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")
-    .slice(0, 60);
+    .slice(0, 60)
+    // The cap can land mid-word and leave a dangling separator.
+    .replace(/-+$/, "");
 }
 
 /**
- * Anchor ids for a document's headings, keyed by block index. Slugs collide
- * within a document because `slugify` truncates at 60 chars and guides repeat
- * headings like "Part 1: …", so repeats get a `-2`, `-3` suffix. The rendered
- * headings and the outline both read this map, so their ids cannot drift.
+ * Anchor ids for a document's headings, keyed by block index. Slugs can collide
+ * within a document — `slugify` truncates at 60 chars, and generic headings
+ * ("Practice Questions") recur — so repeats get a `-2`, `-3` suffix. The
+ * rendered headings, the outline and the search index all read this map, so
+ * their ids cannot drift.
  */
 export function headingAnchors(blocks: Block[]): Map<number, string> {
   const ids = new Map<number, string>();

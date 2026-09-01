@@ -28,7 +28,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 1: Running Claude Code Headless (Task Statement 3.6)" }
+        { "t": "text", "v": "Running Claude Code Headless (Task Statement 3.6)" }
       ]
     },
     {
@@ -165,7 +165,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 2: Precision Prompting to Reduce False Positives (Task Statement 4.1)" }
+        { "t": "text", "v": "Precision Prompting to Reduce False Positives (Task Statement 4.1)" }
       ]
     },
     {
@@ -249,7 +249,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 3: Few-Shot Prompting (Task Statement 4.2)" }
+        { "t": "text", "v": "Few-Shot Prompting (Task Statement 4.2)" }
       ]
     },
     {
@@ -326,7 +326,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 4: Multi-Instance and Multi-Pass Review (Task Statement 4.6)" }
+        { "t": "text", "v": "Multi-Instance and Multi-Pass Review (Task Statement 4.6)" }
       ]
     },
     {
@@ -427,7 +427,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 5: Batch vs Real-Time API (Task Statement 4.5)" }
+        { "t": "text", "v": "Batch vs Real-Time API (Task Statement 4.5)" }
       ]
     },
     {
@@ -560,7 +560,7 @@
       "type": "heading",
       "level": 2,
       "spans": [
-        { "t": "text", "v": "Part 6: Practice Questions" }
+        { "t": "text", "v": "Practice Questions" }
       ]
     },
     {

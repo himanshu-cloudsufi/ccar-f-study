@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: CLAUDE.md Configuration Hierarchy (Task Statement 3.1)
+## CLAUDE.md Configuration Hierarchy (Task Statement 3.1)
 
 ### The three levels (memorize the paths)
 
@@ -26,7 +26,7 @@
 
 ---
 
-## Part 2: Path-Specific Rules (Task Statement 3.3)
+## Path-Specific Rules (Task Statement 3.3)
 
 Rule files in `.claude/rules/` can carry **YAML frontmatter with a `paths` field of glob patterns**. The rule loads **only when Claude is editing matching files**, cutting irrelevant context and token usage.
 
@@ -52,7 +52,7 @@ Decision matrix:
 
 ---
 
-## Part 3: Custom Slash Commands and Skills (Task Statement 3.2)
+## Custom Slash Commands and Skills (Task Statement 3.2)
 
 ### Scoping
 | Artifact | Project scope (shared via git) | User scope (personal) |
@@ -76,7 +76,7 @@ If it must apply automatically/deterministically based on file paths, that's a *
 
 ---
 
-## Part 4: Plan Mode vs Direct Execution (Task Statement 3.4)
+## Plan Mode vs Direct Execution (Task Statement 3.4)
 
 ### When plan mode
 - Large-scale changes (e.g., library migrations touching **45+ files**)
@@ -99,7 +99,7 @@ For verbose discovery phases, use the **Explore subagent** to isolate exploratio
 
 ---
 
-## Part 5: Iterative Refinement Techniques (Task Statement 3.5)
+## Iterative Refinement Techniques (Task Statement 3.5)
 
 1. **Concrete input/output examples** — the most effective way to communicate a transformation when prose descriptions get interpreted inconsistently. Provide **2–3 examples**. (E.g., null handling in a migration script: give an input row with nulls + the exact expected output.)
 2. **Test-driven iteration** — write the test suite first (expected behavior, edge cases, performance), then iterate by sharing **test failures** with Claude.
@@ -108,7 +108,7 @@ For verbose discovery phases, use the **Explore subagent** to isolate exploratio
 
 ---
 
-## Part 6: Sessions and Context (Task Statements 1.7, 5.4)
+## Sessions and Context (Task Statements 1.7, 5.4)
 
 - **`--resume <session-name>`** — continue a specific named prior session across work sessions.
 - **`fork_session`** — branch independent explorations from a **shared analysis baseline** (e.g., compare two refactoring approaches without redoing the codebase analysis).
@@ -119,7 +119,7 @@ For verbose discovery phases, use the **Explore subagent** to isolate exploratio
 
 ---
 
-## Part 7: Practice Questions
+## Practice Questions
 
 **Q1.** Your team's coding standards live in your `~/.claude/CLAUDE.md` and work great for you. A new hire reports Claude ignores all the standards. Why?
 

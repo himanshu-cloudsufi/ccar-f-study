@@ -58,7 +58,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 1: Structured Output via tool_use (Task Statement 4.3)"
+          "v": "Structured Output via tool_use (Task Statement 4.3)"
         }
       ]
     },
@@ -363,7 +363,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 2: Validation, Retry, Feedback Loops (Task Statement 4.4)"
+          "v": "Validation, Retry, Feedback Loops (Task Statement 4.4)"
         }
       ]
     },
@@ -648,7 +648,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 3: Batch Processing Strategy (Task Statement 4.5)"
+          "v": "Batch Processing Strategy (Task Statement 4.5)"
         }
       ]
     },
@@ -792,7 +792,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 4: Human Review Workflows & Confidence Calibration (Task Statement 5.5)"
+          "v": "Human Review Workflows & Confidence Calibration (Task Statement 5.5)"
         }
       ]
     },
@@ -941,7 +941,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 5: Context & Reliability for Extraction (Domain 5 touches)"
+          "v": "Context & Reliability for Extraction (Domain 5 touches)"
         }
       ]
     },
@@ -1010,7 +1010,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 6: Practice Questions"
+          "v": "Practice Questions"
         }
       ]
     },

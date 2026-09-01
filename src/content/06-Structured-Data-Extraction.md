@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: Structured Output via tool_use (Task Statement 4.3)
+## Structured Output via tool_use (Task Statement 4.3)
 
 ### Why tool_use is the answer
 Defining an "extraction tool" whose **input schema is your target JSON schema** and reading the structured data out of the `tool_use` block is **the most reliable way to get guaranteed schema-compliant output**. It **eliminates JSON syntax errors** (no unbalanced braces, no markdown fences, no trailing commas).
@@ -49,7 +49,7 @@ Strict schemas eliminate **syntax** errors but **NOT semantic errors**: line ite
 
 ---
 
-## Part 2: Validation, Retry, Feedback Loops (Task Statement 4.4)
+## Validation, Retry, Feedback Loops (Task Statement 4.4)
 
 ### Retry-with-error-feedback
 On validation failure (Pydantic / JSON Schema), send a follow-up including:
@@ -76,7 +76,7 @@ When documents vary structurally (inline citations vs bibliographies; methodolog
 
 ---
 
-## Part 3: Batch Processing Strategy (Task Statement 4.5)
+## Batch Processing Strategy (Task Statement 4.5)
 
 Facts: **50% cost savings · up to 24h processing · no latency SLA · `custom_id` correlation · no multi-turn tool calling inside a batch request.**
 
@@ -91,7 +91,7 @@ Appropriateness: overnight reports, weekly audits, large back-fills = batch. Any
 
 ---
 
-## Part 4: Human Review Workflows & Confidence Calibration (Task Statement 5.5)
+## Human Review Workflows & Confidence Calibration (Task Statement 5.5)
 
 ### The aggregate-metrics trap
 **97% overall accuracy can mask terrible performance on specific document types or fields** (e.g., 99% on invoices, 70% on handwritten receipts). Before reducing human review, **validate accuracy segmented by document type AND by field**.
@@ -106,7 +106,7 @@ Appropriateness: overnight reports, weekly audits, large back-fills = batch. Any
 
 ---
 
-## Part 5: Context & Reliability for Extraction (Domain 5 touches)
+## Context & Reliability for Extraction (Domain 5 touches)
 
 - **Long documents:** lost-in-the-middle applies — fields buried mid-document are at higher risk; consider chunking or restructuring inputs.
 - **Temporal fields:** capture publication/collection dates so downstream systems don't misread time differences as contradictions.
@@ -114,7 +114,7 @@ Appropriateness: overnight reports, weekly audits, large back-fills = batch. Any
 
 ---
 
-## Part 6: Practice Questions
+## Practice Questions
 
 **Q1.** Your extraction pipeline intermittently fails on malformed JSON: markdown fences, trailing commas, unescaped quotes. Most reliable fix?
 

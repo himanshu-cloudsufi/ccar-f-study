@@ -50,7 +50,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 1: Hub-and-Spoke Orchestration (Task Statement 1.2)"
+          "v": "Hub-and-Spoke Orchestration (Task Statement 1.2)"
         }
       ]
     },
@@ -272,7 +272,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 2: Spawning Subagents and Passing Context (Task Statement 1.3)"
+          "v": "Spawning Subagents and Passing Context (Task Statement 1.3)"
         }
       ]
     },
@@ -467,7 +467,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 3: Tool Distribution Across Agents (Task Statement 2.3)"
+          "v": "Tool Distribution Across Agents (Task Statement 2.3)"
         }
       ]
     },
@@ -746,7 +746,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 4: Error Propagation (Task Statements 2.2, 5.3)"
+          "v": "Error Propagation (Task Statements 2.2, 5.3)"
         }
       ]
     },
@@ -1001,7 +1001,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 5: Context, Provenance, and Conflicts (Task Statements 5.1, 5.6)"
+          "v": "Context, Provenance, and Conflicts (Task Statements 5.1, 5.6)"
         }
       ]
     },
@@ -1220,7 +1220,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 6: Practice Questions"
+          "v": "Practice Questions"
         }
       ]
     },

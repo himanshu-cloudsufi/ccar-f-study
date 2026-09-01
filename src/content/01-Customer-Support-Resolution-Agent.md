@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: The Agentic Loop (Task Statement 1.1)
+## The Agentic Loop (Task Statement 1.1)
 
 ### How the loop works
 1. Send the request (with tools defined) to Claude via the API.
@@ -40,7 +40,7 @@ while True:
 
 ---
 
-## Part 2: Enforcement, Hooks, and Workflow Ordering (Task Statements 1.4, 1.5)
+## Enforcement, Hooks, and Workflow Ordering (Task Statements 1.4, 1.5)
 
 ### The core exam principle
 > When deterministic compliance is required (e.g., identity verification before financial operations), prompt instructions alone have a **non-zero failure rate**. Use **programmatic enforcement**.
@@ -73,7 +73,7 @@ When escalating mid-process, the human agent typically **cannot see the conversa
 
 ---
 
-## Part 3: Tool Design for Support Tools (Task Statements 2.1, 2.2)
+## Tool Design for Support Tools (Task Statements 2.1, 2.2)
 
 ### Tool descriptions are THE selection mechanism
 LLMs choose tools based primarily on their **descriptions**. Minimal descriptions ("Retrieves customer information" vs "Retrieves order details") cause misrouting between similar tools. A good description includes:
@@ -111,7 +111,7 @@ Also distinguish **access failures** (couldn't query — retry decision needed) 
 
 ---
 
-## Part 4: Context Management for Long Support Sessions (Task Statement 5.1)
+## Context Management for Long Support Sessions (Task Statement 5.1)
 
 ### Progressive summarization risk
 As conversations grow, naive summarization condenses **numerical values, percentages, dates, and customer-stated expectations** into vague prose ("customer wants a refund" loses "$127.43 refund for order ORD-88231 promised by Friday"). 
@@ -126,7 +126,7 @@ Models reliably attend to the **beginning and end** of long inputs; middle conte
 
 ---
 
-## Part 5: Escalation & Ambiguity Resolution (Task Statement 5.2)
+## Escalation & Ambiguity Resolution (Task Statement 5.2)
 
 ### Correct escalation triggers
 1. **Customer explicitly requests a human** → escalate **immediately**, without first attempting investigation. (Exception nuance: if the customer is merely *frustrated* but the issue is clearly within the agent's capability, acknowledge frustration + offer to resolve, and escalate if they reiterate.)
@@ -144,7 +144,7 @@ If `get_customer` returns several matches, **ask the customer for additional ide
 
 ---
 
-## Part 6: Practice Questions
+## Practice Questions
 
 **Q1.** Your agent processes a $50 refund for the wrong customer because it matched by name only. Logs show `get_customer` was skipped in 12% of refund flows despite the system prompt saying verification is "mandatory." Best fix?
 

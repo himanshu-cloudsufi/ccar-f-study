@@ -7,7 +7,7 @@
 
 ---
 
-## Part 1: Running Claude Code Headless (Task Statement 3.6)
+## Running Claude Code Headless (Task Statement 3.6)
 
 ### The flags (memorize exactly — fake flags are distractors)
 - **`-p` / `--print`** — non-interactive mode. Processes the prompt, prints to stdout, exits. Without it, Claude Code waits for interactive input and **the CI job hangs indefinitely** (sample Q10).
@@ -33,7 +33,7 @@ claude -p "Review the diff for security issues" \
 
 ---
 
-## Part 2: Precision Prompting to Reduce False Positives (Task Statement 4.1)
+## Precision Prompting to Reduce False Positives (Task Statement 4.1)
 
 ### Explicit criteria beat vague instructions
 - ❌ "Check that comments are accurate" / "be conservative" / "only report high-confidence findings" — these **do not improve precision**.
@@ -48,7 +48,7 @@ Define **explicit severity criteria with concrete code examples per level** — 
 
 ---
 
-## Part 3: Few-Shot Prompting (Task Statement 4.2)
+## Few-Shot Prompting (Task Statement 4.2)
 
 When detailed instructions alone still yield inconsistent output, **few-shot examples are the most effective technique** for:
 - **Format consistency** — demonstrate the exact output shape: location, issue, severity, suggested fix.
@@ -62,7 +62,7 @@ Add a **`detected_pattern` field** to structured findings. When developers dismi
 
 ---
 
-## Part 4: Multi-Instance and Multi-Pass Review (Task Statement 4.6)
+## Multi-Instance and Multi-Pass Review (Task Statement 4.6)
 
 ### Self-review limitation
 A model that just generated code **retains its reasoning context** and is unlikely to question its own decisions in the same session. Neither "review your own work carefully" instructions nor extended thinking fixes this.
@@ -83,7 +83,7 @@ Optional add-on: verification passes where the model **self-reports confidence p
 
 ---
 
-## Part 5: Batch vs Real-Time API (Task Statement 4.5)
+## Batch vs Real-Time API (Task Statement 4.5)
 
 ### Message Batches API facts (memorize)
 - **50% cost savings** vs synchronous API
@@ -109,7 +109,7 @@ Resubmit **only failed requests** (identified via `custom_id`), with modificatio
 
 ---
 
-## Part 6: Practice Questions
+## Practice Questions
 
 **Q1.** Your GitHub Action step `claude "Generate tests for changed files"` never completes. Fix?
 

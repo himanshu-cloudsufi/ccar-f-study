@@ -90,7 +90,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 1: The Agentic Loop (Task Statement 1.1)"
+          "v": "The Agentic Loop (Task Statement 1.1)"
         }
       ]
     },
@@ -329,7 +329,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 2: Enforcement, Hooks, and Workflow Ordering (Task Statements 1.4, 1.5)"
+          "v": "Enforcement, Hooks, and Workflow Ordering (Task Statements 1.4, 1.5)"
         }
       ]
     },
@@ -686,7 +686,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 3: Tool Design for Support Tools (Task Statements 2.1, 2.2)"
+          "v": "Tool Design for Support Tools (Task Statements 2.1, 2.2)"
         }
       ]
     },
@@ -1013,7 +1013,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 4: Context Management for Long Support Sessions (Task Statement 5.1)"
+          "v": "Context Management for Long Support Sessions (Task Statement 5.1)"
         }
       ]
     },
@@ -1130,7 +1130,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 5: Escalation & Ambiguity Resolution (Task Statement 5.2)"
+          "v": "Escalation & Ambiguity Resolution (Task Statement 5.2)"
         }
       ]
     },
@@ -1336,7 +1336,7 @@
       "spans": [
         {
           "t": "text",
-          "v": "Part 6: Practice Questions"
+          "v": "Practice Questions"
         }
       ]
     },
