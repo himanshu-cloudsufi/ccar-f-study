@@ -7,40 +7,192 @@
       "type": "callout",
       "variant": "note",
       "spans": [
-        {
-          "t": "text",
-          "v": "Companion index to the six scenario guides. Read this first, then the "
-        },
-        {
-          "t": "strong",
-          "v": "Official Exam Guide"
-        },
-        {
-          "t": "text",
-          "v": " for the authoritative logistics, domain weights, task statements, and out-of-scope list — none of that is repeated here."
-        }
+        { "t": "text", "v": "Companion index to the six scenario guides. Read this first, then the " },
+        { "t": "strong", "v": "Official Exam Guide" },
+        { "t": "text", "v": " — the authoritative source for logistics, sample questions, preparation exercises, and the full task statements, which are only referenced by number here. This document adds the connective tissue: how the exam is assembled from scenarios and domains, where each domain is taught, and which task statements anchor the ten answer patterns." }
       ]
     },
-    {
-      "type": "divider"
-    },
+    { "type": "divider" },
     {
       "type": "heading",
       "level": 2,
+      "spans": [{ "t": "text", "v": "1. How the Exam Is Assembled" }]
+    },
+    {
+      "type": "paragraph",
       "spans": [
-        {
-          "t": "text",
-          "v": "1. Cross-Cutting Answer Patterns (Learn These Cold)"
-        }
+        { "t": "strong", "v": "60 questions, 120 minutes, 4 scenarios drawn at random from a bank of 6" },
+        { "t": "text", "v": " — roughly 15 questions per drawn scenario, every question single-answer with one correct option and three distractors written to be plausible to a candidate with incomplete knowledge. You cannot predict which four scenarios you get, so all six guides are mandatory: a weak scenario has a 4-in-6 chance of appearing on your form." }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [{ "t": "text", "v": "#" }],
+        [{ "t": "text", "v": "Scenario" }],
+        [{ "t": "text", "v": "Guide" }],
+        [{ "t": "text", "v": "Domains" }],
+        [{ "t": "text", "v": "What it tests" }]
+      ],
+      "rows": [
+        [
+          [{ "t": "text", "v": "1" }],
+          [{ "t": "text", "v": "Customer Support Resolution Agent" }],
+          [{ "t": "text", "v": "01" }],
+          [{ "t": "text", "v": "D1 · D2 · D5" }],
+          [
+            { "t": "text", "v": "Agent SDK loop, MCP support tools (" },
+            { "t": "code", "v": "get_customer" },
+            { "t": "text", "v": ", " },
+            { "t": "code", "v": "process_refund" },
+            { "t": "text", "v": ", …), enforcement hooks, escalation — 80%+ first-contact resolution target" }
+          ]
+        ],
+        [
+          [{ "t": "text", "v": "2" }],
+          [{ "t": "text", "v": "Code Generation with Claude Code" }],
+          [{ "t": "text", "v": "02" }],
+          [{ "t": "text", "v": "D3 · D5" }],
+          [{ "t": "text", "v": "Custom slash commands, CLAUDE.md configurations, plan mode vs direct execution" }]
+        ],
+        [
+          [{ "t": "text", "v": "3" }],
+          [{ "t": "text", "v": "Multi-Agent Research System" }],
+          [{ "t": "text", "v": "03" }],
+          [{ "t": "text", "v": "D1 · D2 · D5" }],
+          [{ "t": "text", "v": "Coordinator delegating to web-search, document-analysis, synthesis, and report subagents; cited reports" }]
+        ],
+        [
+          [{ "t": "text", "v": "4" }],
+          [{ "t": "text", "v": "Developer Productivity with Claude" }],
+          [{ "t": "text", "v": "04" }],
+          [{ "t": "text", "v": "D2 · D3 · D1" }],
+          [{ "t": "text", "v": "Codebase exploration, legacy systems, boilerplate, built-in tools (Read, Write, Bash, Grep, Glob), MCP servers" }]
+        ],
+        [
+          [{ "t": "text", "v": "5" }],
+          [{ "t": "text", "v": "Claude Code for Continuous Integration" }],
+          [{ "t": "text", "v": "05" }],
+          [{ "t": "text", "v": "D3 · D4" }],
+          [{ "t": "text", "v": "Automated reviews, test generation, PR feedback, actionable output, minimal false positives" }]
+        ],
+        [
+          [{ "t": "text", "v": "6" }],
+          [{ "t": "text", "v": "Structured Data Extraction" }],
+          [{ "t": "text", "v": "06" }],
+          [{ "t": "text", "v": "D4 · D5" }],
+          [{ "t": "text", "v": "Extraction from unstructured documents, JSON schema validation, edge cases, downstream integration" }]
+        ]
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "2. Domains → Where to Study Them" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "Domain weights convert directly into questions — " },
+        { "t": "strong", "v": "1% ≈ 0.6 questions of the 60" },
+        { "t": "text", "v": " — so study time should follow the same curve. Domains 1 + 2 together are " },
+        { "t": "strong", "v": "45% of the exam" },
+        { "t": "text", "v": ", and Domain 1 alone outweighs every other domain." }
+      ]
+    },
+    {
+      "type": "table",
+      "columns": [
+        [{ "t": "text", "v": "Domain" }],
+        [{ "t": "text", "v": "Weight" }],
+        [{ "t": "text", "v": "≈ Questions" }],
+        [{ "t": "text", "v": "Task statements" }],
+        [{ "t": "text", "v": "Taught in guides" }]
+      ],
+      "rows": [
+        [
+          [
+            { "t": "strong", "v": "D1" },
+            { "t": "text", "v": " Agentic Architecture & Orchestration" }
+          ],
+          [{ "t": "text", "v": "27%" }],
+          [{ "t": "text", "v": "~16 of 60" }],
+          [{ "t": "text", "v": "1.1–1.7" }],
+          [{ "t": "text", "v": "01 (1.1, 1.4, 1.5) · 03 (1.2, 1.3) · 04 (1.6, 1.7) · 02 (1.7)" }]
+        ],
+        [
+          [
+            { "t": "strong", "v": "D2" },
+            { "t": "text", "v": " Tool Design & MCP Integration" }
+          ],
+          [{ "t": "text", "v": "18%" }],
+          [{ "t": "text", "v": "~11 of 60" }],
+          [{ "t": "text", "v": "2.1–2.5" }],
+          [{ "t": "text", "v": "01 (2.1, 2.2) · 03 (2.2, 2.3) · 04 (2.4, 2.5)" }]
+        ],
+        [
+          [
+            { "t": "strong", "v": "D3" },
+            { "t": "text", "v": " Claude Code Configuration & Workflows" }
+          ],
+          [{ "t": "text", "v": "20%" }],
+          [{ "t": "text", "v": "~12 of 60" }],
+          [{ "t": "text", "v": "3.1–3.6" }],
+          [{ "t": "text", "v": "02 (3.1–3.5) · 05 (3.6)" }]
+        ],
+        [
+          [
+            { "t": "strong", "v": "D4" },
+            { "t": "text", "v": " Prompt Engineering & Structured Output" }
+          ],
+          [{ "t": "text", "v": "20%" }],
+          [{ "t": "text", "v": "~12 of 60" }],
+          [{ "t": "text", "v": "4.1–4.6" }],
+          [{ "t": "text", "v": "05 (4.1, 4.2, 4.5, 4.6) · 06 (4.2–4.5)" }]
+        ],
+        [
+          [
+            { "t": "strong", "v": "D5" },
+            { "t": "text", "v": " Context Management & Reliability" }
+          ],
+          [{ "t": "text", "v": "15%" }],
+          [{ "t": "text", "v": "~9 of 60" }],
+          [{ "t": "text", "v": "5.1–5.6" }],
+          [{ "t": "text", "v": "01 (5.1, 5.2) · 03 (5.1, 5.3, 5.6) · 04 (5.4) · 02 (5.4) · 06 (5.5)" }]
+        ]
       ]
     },
     {
       "type": "paragraph",
       "spans": [
-        {
-          "t": "text",
-          "v": "The official sample questions reveal a consistent grading philosophy. When two answers both \"could work,\" the correct one almost always follows one of these principles:"
-        }
+        { "t": "text", "v": "Every one of the " },
+        { "t": "strong", "v": "30 task statements" },
+        { "t": "text", "v": " is covered by at least one scenario guide. Where a statement appears in two guides (1.7, 2.2, 4.2, 4.5, 5.1, 5.4), each guide approaches it from a different scenario — read both treatments; the exam does the same." }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "A reading order that follows the weights: " },
+        { "t": "strong", "v": "01 → 03 → 04" },
+        { "t": "text", "v": " first (Domains 1 + 2, 45%), then " },
+        { "t": "strong", "v": "02 → 05" },
+        { "t": "text", "v": " (Domain 3 plus the review half of Domain 4), then " },
+        { "t": "strong", "v": "06" },
+        { "t": "text", "v": " (extraction and reliability)." }
+      ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "3. Cross-Cutting Answer Patterns (Learn These Cold)" }]
+    },
+    {
+      "type": "paragraph",
+      "spans": [
+        { "t": "text", "v": "The official sample questions reveal a consistent grading philosophy. When two answers both \"could work,\" the correct one almost always follows one of these principles — each anchored to the task statements where the exam tests it:" }
       ]
     },
     {
@@ -49,166 +201,125 @@
       "items": [
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Deterministic > probabilistic when compliance is mandatory."
-            },
-            {
-              "t": "text",
-              "v": " Business-critical ordering (verify identity before refund) → programmatic hooks/gates, not prompt text or few-shot examples. Prompts have a non-zero failure rate."
-            }
+            { "t": "strong", "v": "Deterministic > probabilistic when compliance is mandatory." },
+            { "t": "text", "v": " Business-critical ordering (verify identity before refund) → programmatic hooks/gates, not prompt text or few-shot examples. Prompts have a non-zero failure rate. " },
+            { "t": "em", "v": "(task statements 1.4, 1.5)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Fix the root cause with the simplest proportionate change."
-            },
-            {
-              "t": "text",
-              "v": " Bad tool selection → improve tool "
-            },
-            {
-              "t": "em",
-              "v": "descriptions"
-            },
-            {
-              "t": "text",
-              "v": " first, before few-shot examples, routing layers, or classifiers. \"Over-engineered\" is a recurring wrong-answer trap."
-            }
+            { "t": "strong", "v": "Fix the root cause with the simplest proportionate change." },
+            { "t": "text", "v": " Bad tool selection → improve tool " },
+            { "t": "em", "v": "descriptions" },
+            { "t": "text", "v": " first, before few-shot examples, routing layers, or classifiers. \"Over-engineered\" is a recurring wrong-answer trap. " },
+            { "t": "em", "v": "(task statement 2.1)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Self-reported confidence and sentiment are unreliable proxies."
-            },
-            {
-              "t": "text",
-              "v": " Escalation should be driven by explicit criteria + few-shot examples, not confidence thresholds or sentiment analysis."
-            }
+            { "t": "strong", "v": "Self-reported confidence and sentiment are unreliable proxies." },
+            { "t": "text", "v": " Escalation should be driven by explicit criteria + few-shot examples, not confidence thresholds or sentiment analysis. " },
+            { "t": "em", "v": "(task statements 5.2, 5.5)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Match the API to latency tolerance."
-            },
-            {
-              "t": "text",
-              "v": " Batch API (50% cheaper, up to 24h, no SLA) for overnight/weekly jobs; synchronous API for anything blocking."
-            }
+            { "t": "strong", "v": "Match the API to latency tolerance." },
+            { "t": "text", "v": " Batch API (50% cheaper, up to 24h, no SLA) for overnight/weekly jobs; synchronous API for anything blocking. " },
+            { "t": "em", "v": "(task statement 4.5)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Attention dilutes; split the work."
-            },
-            {
-              "t": "text",
-              "v": " Large multi-file reviews → per-file passes + a separate cross-file integration pass. Bigger context windows do NOT fix attention quality."
-            }
+            { "t": "strong", "v": "Attention dilutes; split the work." },
+            { "t": "text", "v": " Large multi-file reviews → per-file passes + a separate cross-file integration pass. Bigger context windows do NOT fix attention quality. " },
+            { "t": "em", "v": "(task statements 1.6, 4.6)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Independent reviewers beat self-review."
-            },
-            {
-              "t": "text",
-              "v": " A fresh Claude instance without the generator's reasoning context catches more issues."
-            }
+            { "t": "strong", "v": "Independent reviewers beat self-review." },
+            { "t": "text", "v": " A fresh Claude instance without the generator's reasoning context catches more issues. " },
+            { "t": "em", "v": "(task statements 3.6, 4.6)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Never fabricate; make schemas honest."
-            },
-            {
-              "t": "text",
-              "v": " Nullable/optional fields where data may be absent; enums with \"unclear\"/\"other\"+detail; retries can't recover information that isn't in the source."
-            }
+            { "t": "strong", "v": "Never fabricate; make schemas honest." },
+            { "t": "text", "v": " Nullable/optional fields where data may be absent; enums with \"unclear\"/\"other\"+detail; retries can't recover information that isn't in the source. " },
+            { "t": "em", "v": "(task statements 4.3, 4.4)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Errors must carry structure."
-            },
-            {
-              "t": "text",
-              "v": " errorCategory, isRetryable, what was attempted, partial results. Generic failures, silent suppression, and whole-workflow termination are all anti-patterns."
-            }
+            { "t": "strong", "v": "Errors must carry structure." },
+            { "t": "text", "v": " errorCategory, isRetryable, what was attempted, partial results. Generic failures, silent suppression, and whole-workflow termination are all anti-patterns. " },
+            { "t": "em", "v": "(task statements 2.2, 5.3)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Subagents share nothing by default."
-            },
-            {
-              "t": "text",
-              "v": " Context must be passed explicitly in prompts; coordinator routes all communication (hub-and-spoke)."
-            }
+            { "t": "strong", "v": "Subagents share nothing by default." },
+            { "t": "text", "v": " Context must be passed explicitly in prompts; coordinator routes all communication (hub-and-spoke). " },
+            { "t": "em", "v": "(task statements 1.2, 1.3)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "strong",
-              "v": "Preserve provenance."
-            },
-            {
-              "t": "text",
-              "v": " Claim–source mappings, publication dates, conflict annotation with attribution — never silently pick one value."
-            }
+            { "t": "strong", "v": "Preserve provenance." },
+            { "t": "text", "v": " Claim–source mappings, publication dates, conflict annotation with attribution — never silently pick one value. " },
+            { "t": "em", "v": "(task statements 1.3, 5.6)" }
           ],
           "marker": "none",
           "children": []
         }
       ]
     },
-    {
-      "type": "divider"
-    },
+    { "type": "divider" },
     {
       "type": "heading",
       "level": 2,
+      "spans": [{ "t": "text", "v": "4. What the Exam Does Not Test" }]
+    },
+    {
+      "type": "paragraph",
       "spans": [
-        {
-          "t": "text",
-          "v": "2. Official Documentation to Study"
-        }
+        { "t": "text", "v": "The Official Exam Guide's out-of-scope list is worth taking literally — every hour spent on it is an hour taken from a 27% domain. Nothing on the exam covers: " },
+        { "t": "strong", "v": "model internals" },
+        { "t": "text", "v": " (Claude's training, Constitutional AI/RLHF, tokenization, prompt-caching internals, benchmarking); " },
+        { "t": "strong", "v": "adjacent ML infrastructure" },
+        { "t": "text", "v": " (fine-tuning, embeddings, vector databases); " },
+        { "t": "strong", "v": "API operations" },
+        { "t": "text", "v": " (auth/billing, rate limits and pricing math, OAuth/key rotation, streaming); " },
+        { "t": "strong", "v": "deployment plumbing" },
+        { "t": "text", "v": " (MCP server hosting/infrastructure, cloud-provider specifics); the " },
+        { "t": "strong", "v": "multimodal surface" },
+        { "t": "text", "v": " (vision, computer use); or language/framework internals. One nuance: the Batch API's 50% discount is still fair game — it drives an architecture decision, not pricing arithmetic. If a practice resource drills anything else on this list, it is preparing you for a different exam." }
       ]
+    },
+    { "type": "divider" },
+    {
+      "type": "heading",
+      "level": 2,
+      "spans": [{ "t": "text", "v": "5. Official Documentation to Study" }]
     },
     {
       "type": "list",
@@ -216,76 +327,36 @@
       "items": [
         {
           "spans": [
-            {
-              "t": "text",
-              "v": "Claude Code docs: "
-            },
-            {
-              "t": "link",
-              "v": "https://code.claude.com/docs",
-              "href": "https://code.claude.com/docs"
-            },
-            {
-              "t": "text",
-              "v": " (memory/CLAUDE.md, rules, slash commands, skills, MCP, CLI reference, plan mode, sessions)"
-            }
+            { "t": "text", "v": "Claude Code docs: " },
+            { "t": "link", "v": "https://code.claude.com/docs", "href": "https://code.claude.com/docs" },
+            { "t": "text", "v": " (memory/CLAUDE.md, rules, slash commands, skills, MCP, CLI reference, plan mode, sessions)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "text",
-              "v": "Claude API docs: "
-            },
-            {
-              "t": "link",
-              "v": "https://docs.claude.com/en/api/overview",
-              "href": "https://docs.claude.com/en/api/overview"
-            },
-            {
-              "t": "text",
-              "v": " (tool use, tool_choice, Message Batches API)"
-            }
+            { "t": "text", "v": "Claude API docs: " },
+            { "t": "link", "v": "https://docs.claude.com/en/api/overview", "href": "https://docs.claude.com/en/api/overview" },
+            { "t": "text", "v": " (tool use, tool_choice, Message Batches API)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "text",
-              "v": "Agent SDK docs: "
-            },
-            {
-              "t": "link",
-              "v": "https://docs.claude.com/en/api/agent-sdk/overview",
-              "href": "https://docs.claude.com/en/api/agent-sdk/overview"
-            },
-            {
-              "t": "text",
-              "v": " (subagents, hooks, sessions)"
-            }
+            { "t": "text", "v": "Agent SDK docs: " },
+            { "t": "link", "v": "https://docs.claude.com/en/api/agent-sdk/overview", "href": "https://docs.claude.com/en/api/agent-sdk/overview" },
+            { "t": "text", "v": " (subagents, hooks, sessions)" }
           ],
           "marker": "none",
           "children": []
         },
         {
           "spans": [
-            {
-              "t": "text",
-              "v": "MCP: "
-            },
-            {
-              "t": "link",
-              "v": "https://modelcontextprotocol.io",
-              "href": "https://modelcontextprotocol.io"
-            },
-            {
-              "t": "text",
-              "v": " (tools, resources, error handling)"
-            }
+            { "t": "text", "v": "MCP: " },
+            { "t": "link", "v": "https://modelcontextprotocol.io", "href": "https://modelcontextprotocol.io" },
+            { "t": "text", "v": " (tools, resources, error handling)" }
           ],
           "marker": "none",
           "children": []

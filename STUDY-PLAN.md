@@ -1,6 +1,6 @@
 # CCAR-F: Three-Week Team Study Plan
 
-Adapted from section 5 of the Overview guide (Learn → *Overview & Study Plan*) and rewritten around what this app actually does. Budget roughly 6–8 hours a week. The order is deliberate: the two heaviest domains first, while you still have three weeks of drilling ahead of you.
+Built from the Official Exam Guide's preparation exercises and written around what this app actually does. Budget roughly 6–8 hours a week. The order is deliberate: the two heaviest domains first, while you still have three weeks of drilling ahead of you.
 
 All six scenarios are fair game and you cannot predict which four you'll be served, so nothing here is optional. Per-scenario bank sizes: S1 38 · S2 38 · S3 38 · S4 34 · S5 38 · S6 36.
 
@@ -28,7 +28,7 @@ All six scenarios are fair game and you cannot predict which four you'll be serv
 
 ## Week 3 — Structured output & reliability (Domains 4 + 5, 35%) + consolidation
 
-**Read (Learn):** guide **06 Structured Data Extraction**, Domains 4 and 5 in the exam guide, then go back and re-read **section 4 of the Overview** — the ten cross-cutting answer patterns. Those patterns decide most of the questions where two options both look workable. Learn them cold enough to name the one a question is testing.
+**Read (Learn):** guide **06 Structured Data Extraction**, Domains 4 and 5 in the exam guide, then go back and re-read **section 3 of the Overview** — the ten cross-cutting answer patterns. Those patterns decide most of the questions where two options both look workable. Learn them cold enough to name the one a question is testing.
 
 **Drill:** S6 at 10, then S6 + your two weakest scenarios (the results screen sorts weakest-first, so you already know which) at 20 timed. Then **Full bank** — 222 questions, split over two or three sittings; the point is coverage, not the score. Finish with **Review my mistakes** until the pool is small.
 
@@ -46,11 +46,11 @@ Book the exam when **all** of these hold:
 - [ ] **All six guides read**, and all four preparation exercises actually built rather than read about.
 - [ ] **You finished a sim with time left.** 60 questions in 120 minutes is 2 minutes each; if you were still rushing at the end, pace is your problem, not knowledge.
 
-If you're stuck at 70–74%, it is almost always the answer patterns rather than facts. Re-read Overview section 4 and, for each miss, name the pattern the question was testing before moving on.
+If you're stuck at 70–74%, it is almost always the answer patterns rather than facts. Re-read Overview section 3 and, for each miss, name the pattern the question was testing before moving on.
 
 ## Day before
 
-- One light pass over Overview section 4 and the domain outline. No new material, no cramming a guide you have never opened.
+- One light pass over Overview section 3 and the domain outline. No new material, no cramming a guide you have never opened.
 - One quick quiz (15 questions) for confidence. **Do not** run a full exam sim — a bad score the night before does nothing but rattle you.
 - Confirm the logistics: Pearson VUE booking time and time zone, photo ID, and if you're taking it online-proctored, run their system check and clear your desk and walls.
 - Sleep. The exam rewards careful reading, which is the first thing fatigue takes.

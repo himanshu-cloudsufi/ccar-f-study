@@ -21,7 +21,7 @@ Node 20+ and npm. No env vars, no backend, no accounts — open it and start stu
 
 Eight guides in a sidebar, rendered from structured block documents (see [Content pipeline](#content-pipeline)) — tables, code samples, do/don't lists, exam-principle callouts, and self-checking practice questions each get their own component rather than one generic Markdown pass. Level-2 headings feed an "on this page" outline.
 
-Read **Overview & Study Plan** first — it is a short strategy index: the ten cross-cutting answer patterns, a 3-week plan, and the docs links. Then **Official Exam Guide**, the authoritative source for logistics, domain weights, the 31 task statements, sample questions, preparation exercises, and the out-of-scope list. Then the six scenario guides, each self-contained and ending with practice questions.
+Read **Overview & Study Plan** first — it is a short strategy index: how the exam is assembled from scenarios and domains, a domain-by-domain map of where each task statement is taught, the ten cross-cutting answer patterns (each anchored to its task statements), what the exam does not test, and the docs links. Then **Official Exam Guide**, the authoritative source for logistics, domain weights, the 30 task statements, sample questions, preparation exercises, and the out-of-scope list. Then the six scenario guides, each self-contained and ending with practice questions.
 
 ### Test
 
